@@ -1,0 +1,5 @@
+streamlit
+flask
+psycopg2-binary
+SpeechRecognition
+gTTS
