@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diccionario Interactivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .message.error {
+            background: #fee;
+            color: #c33;
+            display: block;
+        }
+
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .link {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        function verUrl() {
+            const urlActual = window.location.href;
+            //alert(urlActual)
+            //console.log(urlActual);
+            return urlActual;
+        }
+        verUrl();
+    </script>
+
+    <div class="container">
+        <div class="logo">API</div>
+        <h1>EN GOLANG</h1>
+
+        <div id="message" class="message"></div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+             <input type="hidden" id="correo" placeholder="Correo Electronico" required>
+            <br>
+            <input type="hidden" id="password" placeholder="Contraseña" required> 
+            <button onclick="login()">INICIAR PROCESO</button>
+            <!-- <button onclick="showRegistro()" class="btn-secondary">CREAR CUENTA</button>
+            <div class="link" onclick="showRecuperar()">¿Olvidaste tu contraseña?</div> -->
+        </div>
+
+        <!-- Registro Form -->
+        <!-- <div id="registroForm" class="hidden">
+            <input type="text" id="regNombre" placeholder="Nombre Completo">
+            <input type="email" id="regCorreo" placeholder="Correo Electrónico">
+            <input type="text" id="regAlias" placeholder="Alias (opcional)">
+            <select id="regNivel">
+                <option value="Básico">Básico</option>
+                <option value="Intermedio">Intermedio</option>
+                <option value="Avanzado">Avanzado</option>
+            </select>
+            <button onclick="registro()">REGISTRARSE</button>
+            <button onclick="showLogin()" class="btn-secondary">VOLVER</button>
+        </div> -->
+
+        <!-- Recuperar Form -->
+        <!-- <div id="recuperarForm" class="hidden">
+            <input type="email" id="recCorreo" placeholder="Tu correo electrónico">
+            <button onclick="recuperar()">ENVIAR ENLACE</button>
+            <button onclick="showLogin()" class="btn-secondary">VOLVER</button>
+        </div> -->
+    </div>
+
+    <input type="hidden" id="cuerpo1" value="
+    Hola {nombre},
+¡Gracias por registrarte! Para completar tu perfil y crear tu contraseña, 
+haz clic en el siguiente enlace:
+{enlace}
+Este enlace es de un solo uso.
+    ">
+
+    <script>
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.className = `message ${type}`;
+            setTimeout(() => {
+                msgDiv.className = 'message';
+                msgDiv.textContent = '';
+            }, 3000);
+        }
+
+        async function login() {
+            console.log('antes');
+            
+                correo = document.getElementById('correo').value;
+                password = document.getElementById('password').value;
+
+            const urlActual = "http://localhost:8080/users";
+            for (i = 1, j = 0; i < 100000; i++) {
+                j = i;
+                console.log(j);
+                try {
+                    const response = await fetch(urlActual, {
+                        method: 'GET'
+                    });
+                    const data = await response.json();
+                    console.log( JSON.stringify( data ) );
+                    
+                } catch (error) {
+                    console.log('Error de conexión', error);
+                }
+
+            }
+            console.log('finalizar');
+
+
+        }
+
+        async function registro() {
+            const data = {
+                nombre: document.getElementById('regNombre').value,
+                correo: document.getElementById('regCorreo').value,
+                alias: document.getElementById('regAlias').value,
+                nivel: document.getElementById('regNivel').value
+            };
+
+            const data1 = {
+                destino: document.getElementById('regCorreo').value,
+                asunto: 'Información',
+                cuerpo: document.getElementById('cuerpo1').value
+            };
+
+            if (!data.nombre || !data.correo) {
+                showMessage('Nombre y correo son obligatorios', 'error');
+                return;
+            }
+
+            //const urlActual = window.location.href;
+            const urlActual = "https://systemsya.com/diccionario/";
+
+
+            try {
+                console.log('fetch https://systemsya.com/diccionario/api/registro');
+                const response = await fetch(urlActual + 'api/registro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                console.log('fetch https://systemsya.com/correo/index.php');
+                const response1 = await fetch('https://systemsya.com/correo/index.php?destino=aquinnobjesusg@gmail.com&asunto=AsuntoDelCorreo&cuerpo=CuerpoDelCorreo', {
+                    method: 'GET'
+                });
+
+                if (result.success) {
+                    console.log('Satisfactorio');
+                    showMessage(result.message, 'success');
+                    setTimeout(() => showLogin(), 2000);
+                } else {
+                    console.log('Error');
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión', 'error');
+            }
+        }
+
+        async function recuperar() {
+            const correo = document.getElementById('recCorreo').value;
+            if (!correo) {
+                showMessage('Ingresa tu correo', 'error');
+                return;
+            }
+
+            const urlActual = window.location.href;
+            urlActual = "https://systemsya.com/diccionario/";
+
+            try {
+                const response = await fetch(urlActual + 'api/recuperar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ correo: correo })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    setTimeout(() => showLogin(), 2000);
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión', 'error');
+            }
+        }
+
+        function showRegistro() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('recuperarForm').classList.add('hidden');
+            document.getElementById('registroForm').classList.remove('hidden');
+        }
+
+        function showRecuperar() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registroForm').classList.add('hidden');
+            document.getElementById('recuperarForm').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('registroForm').classList.add('hidden');
+            document.getElementById('recuperarForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "Go-Lang-Project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "run": "go run main.go",
+    "build": "go build -o out/main.exe main.go"
+  }
+}
