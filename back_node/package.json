@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "servidor": "node server.js"
+    "servidor": "node server.js",
+    "server": "node server.js",
+    "dev": "node server.js"
   },
   "description": "",
   "main": "server.js",
