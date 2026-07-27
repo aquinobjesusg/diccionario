@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagram version="1" name="Erm_oxDiccionario">
+	<entities>
+		<data-source id="postgres-jdbc-19f91d69db0-41535e00e520da9b">
+			<entity id="1" name="diccionario" fq-name="public.diccionario">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+			<entity id="2" name="lenguajes" fq-name="public.lenguajes">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+			<entity id="3" name="nivel" fq-name="public.nivel">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+			<entity id="4" name="roles" fq-name="public.roles">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+			<entity id="5" name="tipodediccionario" fq-name="public.tipodediccionario">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+			<entity id="6" name="tipodepalabra" fq-name="public.tipodepalabra">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+			<entity id="7" name="users" fq-name="public.users">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+			<entity id="8" name="usersroles" fq-name="public.usersroles">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+			<entity id="9" name="usuarios" fq-name="public.usuarios">
+				<path name="public"/>
+				<path name="oxdiccionariodb"/>
+			</entity>
+		</data-source>
+	</entities>
+	<relations>
+		<relation name="fkosxcra06hisqa36dfj3jhbyns" fq-name="public.diccionario.fkosxcra06hisqa36dfj3jhbyns" type="fk" pk-ref="2" fk-ref="1"/>
+		<relation name="fkb0f86j7tmwwvepl2s38se2ov0" fq-name="public.users.fkb0f86j7tmwwvepl2s38se2ov0" type="fk" pk-ref="2" fk-ref="7"/>
+		<relation name="fk32f2e8o7s9pcd98l9pmhtymgs" fq-name="public.diccionario.fk32f2e8o7s9pcd98l9pmhtymgs" type="fk" pk-ref="3" fk-ref="1"/>
+		<relation name="fkc413ietwi9eqv6kvv6h8xsp9k" fq-name="public.usersroles.fkc413ietwi9eqv6kvv6h8xsp9k" type="fk" pk-ref="4" fk-ref="8"/>
+		<relation name="fkn9ccvq8lrpxm4lktydmx3ve61" fq-name="public.diccionario.fkn9ccvq8lrpxm4lktydmx3ve61" type="fk" pk-ref="5" fk-ref="1"/>
+		<relation name="fk878w6mk4cpn4xclui6bxro5rb" fq-name="public.diccionario.fk878w6mk4cpn4xclui6bxro5rb" type="fk" pk-ref="6" fk-ref="1"/>
+		<relation name="fk4wjbc6uxndhl6na2dku28y304" fq-name="public.usersroles.fk4wjbc6uxndhl6na2dku28y304" type="fk" pk-ref="7" fk-ref="8"/>
+		<relation name="FK_users_usersroles" fq-name="public.users.&quot;FK_users_usersroles&quot;" type="fk" pk-ref="8" fk-ref="7"/>
+	</relations>
+</diagram>

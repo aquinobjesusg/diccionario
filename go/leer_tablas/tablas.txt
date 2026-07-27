@@ -1,0 +1,30 @@
+TABLA                 CAMPO               TIPO                         ¿NULO?  CLAVE PRIMARIA
+diccionario           id                  integer                      NO      YES
+diccionario           descripcion         character varying            YES     NO
+diccionario           grupo               integer                      YES     NO
+diccionario           texto               character varying            YES     NO
+diccionario           lenguajes_id        integer                      YES     NO
+diccionario           nivel_id            integer                      NO      NO
+diccionario           tipodiccionario_id  integer                      YES     NO
+diccionario           tipopalabra_id      integer                      YES     NO
+images                id                  character varying            NO      YES
+images                gallery             character varying            YES     NO
+images                image               bytea                        YES     NO
+lenguajes             id                  integer                      NO      YES
+lenguajes             descripcion         character varying            YES     NO
+lenguajes             lenguaje            character varying            YES     NO
+lenguajes             siglas              character varying            YES     NO
+nivel                 id                  integer                      NO      YES
+nivel                 descripcion         character varying            YES     NO
+nivel                 nivel               character varying            YES     NO
+oxdiscussioncomments  id                  character varying            NO      YES
+oxdiscussioncomments  comment             oid                          YES     NO
+oxdiscussioncomments  discussionid        character varying            YES     NO
+oxdiscussioncomments  time                timestamp without time zone  YES     NO
+oxdiscussioncomments  username            character varying            YES     NO
+tipodediccionario     id                  integer                      NO      YES
+tipodediccionario     descripcion         character varying            YES     NO
+tipodediccionario     tipodiccionario     character varying            YES     NO
+tipodepalabra         id                  integer                      NO      YES
+tipodepalabra         descripcion         character varying            YES     NO
+tipodepalabra         palabra             character varying            YES     NO

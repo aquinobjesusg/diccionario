@@ -27,3 +27,6 @@ temp/
 /.vscode/
 /.settings/
 
+# Proyecto DbVeawer
+/.dbeaver/
+
