@@ -1,0 +1,4380 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict Q4wrEHRNWDEILRPyAXQu8bT2ZJQWOHzPgPcgwxInz9vIq7NRvUiw71lhAxm8zqS
+
+-- Dumped from database version 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1)
+
+-- Started on 2026-07-27 11:10:12 -04
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 3510 (class 1262 OID 16990)
+-- Name: diccionario; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 229 (class 1255 OID 17255)
+-- Name: calcular_edad(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.calcular_edad(p_id_usuario integer DEFAULT 0, OUT v_edad integer) RETURNS integer
+    LANGUAGE sql STABLE PARALLEL RESTRICTED
+    AS $$
+    -- Calcula la edad en años a partir de la fecha de nacimiento.
+    -- Si no existe el usuario, devuelve NULL (mejor que 0).
+   SELECT COALESCE(
+    (SELECT EXTRACT(YEAR FROM age(CURRENT_DATE, fecha_nacimiento))::integer
+     FROM public.usuarios WHERE id_usuario = p_id_usuario),
+    0
+);
+$$;
+
+
+ALTER FUNCTION public.calcular_edad(p_id_usuario integer, OUT v_edad integer) OWNER TO postgres;
+
+--
+-- TOC entry 228 (class 1255 OID 17256)
+-- Name: calcular_todas_edades(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.calcular_todas_edades() RETURNS integer
+    LANGUAGE sql
+    AS $$	UPDATE public.usuarios SET edad = public.calcular_edad(id_usuario);
+	SELECT 1;$$;
+
+
+ALTER FUNCTION public.calcular_todas_edades() OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 215 (class 1259 OID 17135)
+-- Name: idiomas; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.idiomas (
+    id_lenguaje integer NOT NULL,
+    lenguaje character varying(100),
+    siglas character varying(20)
+);
+
+
+ALTER TABLE public.idiomas OWNER TO postgres;
+
+--
+-- TOC entry 216 (class 1259 OID 17138)
+-- Name: lenguajes_id_lenguaje_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.lenguajes_id_lenguaje_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.lenguajes_id_lenguaje_seq OWNER TO postgres;
+
+--
+-- TOC entry 3511 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: lenguajes_id_lenguaje_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.lenguajes_id_lenguaje_seq OWNED BY public.idiomas.id_lenguaje;
+
+
+--
+-- TOC entry 217 (class 1259 OID 17139)
+-- Name: modismos; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.modismos (
+    id_modismo integer NOT NULL,
+    id_lenguaje integer NOT NULL,
+    id_nivel integer,
+    modismo text
+);
+
+
+ALTER TABLE public.modismos OWNER TO postgres;
+
+--
+-- TOC entry 218 (class 1259 OID 17144)
+-- Name: niveles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.niveles (
+    id_nivel integer NOT NULL,
+    nivel character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public.niveles OWNER TO postgres;
+
+--
+-- TOC entry 219 (class 1259 OID 17147)
+-- Name: nivel_id_nivel_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.nivel_id_nivel_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.nivel_id_nivel_seq OWNER TO postgres;
+
+--
+-- TOC entry 3512 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: nivel_id_nivel_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.nivel_id_nivel_seq OWNED BY public.niveles.id_nivel;
+
+
+--
+-- TOC entry 220 (class 1259 OID 17152)
+-- Name: palabras; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.palabras (
+    id_palabra integer NOT NULL,
+    id_lenguaje integer NOT NULL,
+    id_tipo_palabra integer,
+    id_nivel integer,
+    palabra character varying(100)
+);
+
+
+ALTER TABLE public.palabras OWNER TO postgres;
+
+--
+-- TOC entry 221 (class 1259 OID 17155)
+-- Name: tipo_palabra; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.tipo_palabra (
+    id_tipo_palabra integer NOT NULL,
+    tipo_palabra character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.tipo_palabra OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1259 OID 17158)
+-- Name: tipo_palabra_id_tipo_palabra_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.tipo_palabra_id_tipo_palabra_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.tipo_palabra_id_tipo_palabra_seq OWNER TO postgres;
+
+--
+-- TOC entry 3513 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: tipo_palabra_id_tipo_palabra_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.tipo_palabra_id_tipo_palabra_seq OWNED BY public.tipo_palabra.id_tipo_palabra;
+
+
+--
+-- TOC entry 223 (class 1259 OID 17159)
+-- Name: tipos_archivo; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.tipos_archivo (
+    id_tipo_archivo integer NOT NULL,
+    tipo_archivo character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.tipos_archivo OWNER TO postgres;
+
+--
+-- TOC entry 224 (class 1259 OID 17162)
+-- Name: tipos_archivo_id_tipo_archivo_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.tipos_archivo_id_tipo_archivo_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.tipos_archivo_id_tipo_archivo_seq OWNER TO postgres;
+
+--
+-- TOC entry 3514 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: tipos_archivo_id_tipo_archivo_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.tipos_archivo_id_tipo_archivo_seq OWNED BY public.tipos_archivo.id_tipo_archivo;
+
+
+--
+-- TOC entry 225 (class 1259 OID 17163)
+-- Name: usuarios; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.usuarios (
+    id_usuario integer NOT NULL,
+    nombre character varying(255) NOT NULL,
+    correo character varying(255) NOT NULL,
+    alias character varying(100) NOT NULL,
+    clave text,
+    fecha_registro timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    id_lenguaje integer,
+    fecha_nacimiento date,
+    edad integer
+);
+
+
+ALTER TABLE public.usuarios OWNER TO postgres;
+
+--
+-- TOC entry 226 (class 1259 OID 17173)
+-- Name: usuarios_id_usuario_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.usuarios_id_usuario_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.usuarios_id_usuario_seq OWNER TO postgres;
+
+--
+-- TOC entry 3515 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: usuarios_id_usuario_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.usuarios_id_usuario_seq OWNED BY public.usuarios.id_usuario;
+
+
+--
+-- TOC entry 227 (class 1259 OID 17174)
+-- Name: verbos_compuestos; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.verbos_compuestos (
+    id_verbo integer NOT NULL,
+    id_lenguaje integer NOT NULL,
+    id_nivel integer,
+    verbo text
+);
+
+
+ALTER TABLE public.verbos_compuestos OWNER TO postgres;
+
+--
+-- TOC entry 3323 (class 2604 OID 17181)
+-- Name: idiomas id_lenguaje; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.idiomas ALTER COLUMN id_lenguaje SET DEFAULT nextval('public.lenguajes_id_lenguaje_seq'::regclass);
+
+
+--
+-- TOC entry 3324 (class 2604 OID 17182)
+-- Name: niveles id_nivel; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.niveles ALTER COLUMN id_nivel SET DEFAULT nextval('public.nivel_id_nivel_seq'::regclass);
+
+
+--
+-- TOC entry 3325 (class 2604 OID 17184)
+-- Name: tipo_palabra id_tipo_palabra; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tipo_palabra ALTER COLUMN id_tipo_palabra SET DEFAULT nextval('public.tipo_palabra_id_tipo_palabra_seq'::regclass);
+
+
+--
+-- TOC entry 3326 (class 2604 OID 17185)
+-- Name: tipos_archivo id_tipo_archivo; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tipos_archivo ALTER COLUMN id_tipo_archivo SET DEFAULT nextval('public.tipos_archivo_id_tipo_archivo_seq'::regclass);
+
+
+--
+-- TOC entry 3327 (class 2604 OID 17186)
+-- Name: usuarios id_usuario; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuarios ALTER COLUMN id_usuario SET DEFAULT nextval('public.usuarios_id_usuario_seq'::regclass);
+
+
+--
+-- TOC entry 3492 (class 0 OID 17135)
+-- Dependencies: 215
+-- Data for Name: idiomas; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.idiomas (id_lenguaje, lenguaje, siglas) FROM stdin;
+3	Portugués	\N
+5	Alemán	\N
+6	Italiano	\N
+7	Chino	\N
+8	Japonés	\N
+9	Ruso	\N
+10	Coreano	\N
+1	Inglés	en
+2	Español	es
+4	Francés	fr
+\.
+
+
+--
+-- TOC entry 3494 (class 0 OID 17139)
+-- Dependencies: 217
+-- Data for Name: modismos; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.modismos (id_modismo, id_lenguaje, id_nivel, modismo) FROM stdin;
+101	1	2	To be in the same boat
+101	2	2	Estar en el mismo barco
+102	1	2	To be on cloud nine
+102	2	2	Estar en el séptimo cielo / Muy feliz
+103	1	2	To bell the cat
+103	2	2	Ponerle el cascabel al gato
+104	1	2	To blow your own trumpet
+104	2	2	Darse pote / Alardear
+105	1	2	To bring home the bacon
+105	2	2	Traer el pan a casa / Ganar el sustento
+106	1	2	To butter someone up
+106	2	2	Hacer la pelota / Adular a alguien
+107	1	2	To catch someone red-handed
+107	2	2	Pillar a alguien con las manos en la masa
+108	1	2	To drive someone up the wall
+108	2	2	Sacar a alguien de quicio
+109	1	2	To eat humble pie
+109	2	2	Tragar saliva / Reconocer un error
+110	1	2	To feel like a fish out of water
+110	2	2	Sentirse como un pulpo en un garaje
+111	1	2	To get the hang of something
+111	2	2	Pillarle el truco a algo
+112	1	2	To give someone a hand
+112	2	2	Echar una mano a alguien
+113	1	2	To have a bone to pick with someone
+113	2	2	Tener cuentas que ajustar con alguien
+114	1	2	To have other fish to fry
+114	2	2	Tener otros asuntos que atender
+115	1	2	To hit the jackpot
+115	2	2	Llevarse el premio gordo
+116	1	2	To keep a straight face
+116	2	2	Mantener la compostura / No reírse
+117	1	2	To kick the bucket
+117	2	2	Estirar la pata / Morir
+118	1	2	To kill time
+118	2	2	Matar el tiempo
+119	1	2	To let the steam off
+119	2	2	Desahogarse
+120	1	2	To make a mountain out of a molehill
+120	2	2	Hacer una montaña de un grano de arena
+121	1	2	To pay through the nose
+121	2	2	Pagar un ojo de la cara
+122	1	2	To pull out all the stops
+122	2	2	Echar el resto / Hacer todo lo posible
+123	1	2	To put your foot in it
+123	2	2	Meter la pata
+124	1	2	To rain cats and dogs
+124	2	2	Llover a cántaros
+125	1	2	To read between the lines
+125	2	2	Leer entre líneas
+126	1	2	To rock the boat
+126	2	2	Trastocar los planes / Crear problemas
+127	1	2	To rub salt in the wound
+127	2	2	Hurgar en la herida
+128	1	2	To smell a rat
+128	2	2	Olerse algo chamuscado
+129	1	2	To spill the beans
+129	2	2	Irse de la lengua
+130	1	2	To take the bull by the horns
+130	2	2	Coger el toro por los cuernos
+131	1	2	To turn a blind eye
+131	2	2	Hacer la vista gorda
+132	1	2	To weather the storm
+132	2	2	Capear el temporal
+133	1	2	A cold day in hell
+133	2	2	Cuando las ranas críen pelo
+134	1	2	A house of cards
+134	2	2	Un castillo de naipes
+135	1	2	A leopards spots
+135	2	2	Genio y figura hasta la sepultura
+136	1	2	A litmus test
+136	2	2	La prueba de fuego
+137	1	2	A stone’s throw
+137	2	2	A tiro de piedra / Muy cerca
+138	1	2	All ears
+138	2	2	Ser todo oídos
+139	1	2	All in a day’s work
+139	2	2	Gajes del oficio
+140	1	2	All over the place
+140	2	2	Por todas partes / Desordenado
+141	1	2	An armchair critic
+141	2	2	Un opinólogo / Alguien que critica sin saber
+142	1	2	At the end of your tether
+142	2	2	Estar al límite de la paciencia
+143	1	2	Back to the drawing board
+143	2	2	Empezar de nuevo desde cero
+144	1	2	Barking up the wrong tree
+144	2	2	Estar equivocado de cabo a rabo
+145	1	2	Beating a dead horse
+145	2	2	Perder el tiempo en algo sin solución
+146	1	2	Behind the times
+146	2	2	Anticuado
+147	1	2	Bells and whistles
+147	2	2	Adornos / Funciones extra
+148	1	2	Beside oneself
+148	2	2	Fuera de sí
+149	1	2	Between a rock and a hard place
+149	2	2	Entre la espada y la pared
+150	1	2	Big fish in a small pond
+150	2	2	Pez gordo en pecera pequeña
+151	1	2	Bird’s eye view
+151	2	2	A vista de pájaro
+152	1	2	Bite the hand that feeds you
+152	2	2	Morder la mano que te da de comer
+153	1	2	Blood is thicker than water
+153	2	2	La familia es lo primero
+154	1	2	Bob’s your uncle
+154	2	2	Y listo / Así de fácil
+155	1	2	Bolt from the blue
+155	2	2	Como un balde de agua fría
+156	1	2	Born with a silver spoon
+156	2	2	Nacer en cuna de oro
+157	1	2	Building castles in the air
+157	2	2	Hacer castillos en el aire
+158	1	2	Burning the candle at both ends
+158	2	2	Agotarse por trabajar demasiado
+159	1	2	By the book
+159	2	2	Según las reglas / Al pie de la letra
+160	1	2	Carry the can
+160	2	2	Cargar con las culpas
+161	1	2	Change of heart
+161	2	2	Cambio de parecer
+162	1	2	Chicken out
+162	2	2	Acobardarse
+163	1	2	Chip on your shoulder
+163	2	2	Tener un resentimiento
+164	1	2	Clean bill of health
+164	2	2	Certificado de buena salud
+165	1	2	Close but no cigar
+165	2	2	Cerca, pero no lo suficiente
+166	1	2	Come rain or shine
+166	2	2	Pase lo que pase
+167	1	2	Cooking the books
+167	2	2	Falsear las cuentas
+168	1	2	Crocodile tears
+168	2	2	Lágrimas de cocodrilo
+169	1	2	Cry wolf
+169	2	2	Dar una falsa alarma
+170	1	2	Curiosity killed the cat
+170	2	2	La curiosidad mató al gato
+171	1	2	Dead ringer
+171	2	2	Ser la viva imagen de alguien
+172	1	2	Dog days of summer
+172	2	2	Los días de canícula / Calor extremo
+173	1	2	Don’t hold your breath
+173	2	2	No esperes sentado
+174	1	2	Double edged sword
+174	2	2	Arma de doble filo
+175	1	2	Down to earth
+175	2	2	Tener los pies en la tierra
+176	1	2	Draw the line
+176	2	2	Poner un límite
+177	1	2	Dress to kill
+177	2	2	Vestirse para impresionar
+178	1	2	Drop in the ocean
+178	2	2	Una gota en el mar
+179	1	2	Each to their own
+179	2	2	Cada loco con su tema
+180	1	2	Face value
+180	2	2	Valor nominal / Apariencia
+181	1	2	Fair-weather friend
+181	2	2	Amigo de interés
+182	1	2	Falling on deaf ears
+182	2	2	Caer en saco roto
+183	1	2	Few and far between
+183	2	2	Raro / Escaso
+184	1	2	Fighting a losing battle
+184	2	2	Luchar una batalla perdida
+185	1	2	Fit as a fiddle
+185	2	2	Sano como una manzana
+186	1	2	Flash in the pan
+186	2	2	Flor de un día / Éxito pasajero
+187	1	2	Fly on the wall
+187	2	2	Testigo invisible
+188	1	2	Follow in someone’s footsteps
+188	2	2	Seguir los pasos de alguien
+189	1	2	Food for thought
+189	2	2	Algo para reflexionar
+190	1	2	From rags to riches
+190	2	2	De la miseria a la riqueza
+191	1	2	Full of beans
+191	2	2	Lleno de energía
+192	1	2	Get wind of something
+192	2	2	Enterarse de algo
+193	1	2	Go Dutch
+193	2	2	Pagar a medias
+194	1	2	Grin and bear it
+194	2	2	Al mal tiempo, buena cara
+195	1	2	Hard nut to crack
+195	2	2	Hueso duro de roer
+196	1	2	Have your cake and eat it
+196	2	2	Tenerlo todo / No poder estar en misa y repicando
+197	1	2	Heart in your mouth
+197	2	2	Con el corazón en un puño
+198	1	2	High on the hog
+198	2	2	Vivir por todo lo alto
+199	1	2	Hold your horses
+1	1	1	Piece of cake
+1	2	1	Pan comido
+2	1	1	Break a leg
+2	2	1	Buena suerte / Romperse una pierna
+3	1	1	Under the weather
+3	2	1	Sentirse mal / Estar pachucho
+4	1	1	Spill the beans
+4	2	1	Soltar la lengua / Contar el secreto
+5	1	1	Once in a blue moon
+5	2	1	De higos a brevas / Muy rara vez
+6	1	1	Cost an arm and a leg
+6	2	1	Costar un ojo de la cara
+7	1	1	Let the cat out of the bag
+7	2	1	Descubrir el pastel
+8	1	1	When pigs fly
+8	2	1	Cuando las ranas críen pelo
+9	1	1	Beat around the bush
+9	2	1	Andarse con rodeos
+10	1	1	Bite off more than you can chew
+10	2	1	Quien mucho abarca poco aprieta
+11	1	1	Barking up the wrong tree
+11	2	1	Llamar a la puerta equivocada
+12	1	1	Better late than never
+12	2	1	Más vale tarde que nunca
+13	1	1	Bite the bullet
+13	2	1	Hacer de tripas corazón / Aguantar el tipo
+14	1	1	Break the ice
+14	2	1	Romper el hielo
+15	1	1	By the skin of your teeth
+15	2	1	Por los pelos
+16	1	1	Don’t cry over spilled milk
+16	2	1	A lo hecho, pecho
+17	1	1	Every cloud has a silver lining
+17	2	1	No hay mal que por bien no venga
+18	1	1	Get a taste of your own medicine
+18	2	1	Probar de su propia medicina
+19	1	1	Give someone the cold shoulder
+19	2	1	Hacer el vacío a alguien
+20	1	1	Go the extra mile
+20	2	1	Esforzarse al máximo
+21	1	1	Hit the nail on the head
+21	2	1	Dar en el clavo
+22	1	1	Ignorance is bliss
+22	2	1	La ignorancia da la felicidad
+199	2	2	Para el carro / Calma
+200	1	2	In the long run
+200	2	2	A la larga
+23	1	1	It takes two to tango
+23	2	1	Dos no riñen si uno no quiere
+24	1	1	Keep someone at bay
+24	2	1	Mantener a raya
+25	1	1	Kill two birds with one stone
+25	2	1	Matar dos pájaros de un tiro
+26	1	1	Last straw
+26	2	1	La gota que colmó el vaso
+27	1	1	Let sleeping dogs lie
+27	2	1	Mejor no menearlo
+28	1	1	Make a long story short
+28	2	1	Para no alargarlo más
+29	1	1	Miss the boat
+29	2	1	Perder el tren / Oportunidad
+30	1	1	No pain, no gain
+30	2	1	Quien algo quiere, algo le cuesta
+31	1	1	On the ball
+31	2	1	Estar al tanto / Estar en lo que hay que estar
+32	1	1	Pull someone’s leg
+32	2	1	Tomar el pelo
+33	1	1	Pull yourself together
+33	2	1	Cálmate / Serénate
+34	1	1	Sit on the fence
+34	2	1	No mojarse / Estar indeciso
+35	1	1	Speak of the devil
+35	2	1	Hablando del rey de Roma
+36	1	1	Take it with a grain of salt
+36	2	1	Tomarlo con pinzas
+37	1	1	The best of both worlds
+37	2	1	Lo mejor de ambos mundos
+38	1	1	Through thick and thin
+38	2	1	A las duras y a las maduras
+39	1	1	To make matters worse
+39	2	1	Para colmo de males
+40	1	1	Under the table
+40	2	1	Bajo cuerda / Dinero negro
+41	1	1	Up in the air
+41	2	1	Estar en el aire
+42	1	1	Wrap your head around something
+42	2	1	Entender algo complejo
+43	1	1	You can’t judge a book by its cover
+43	2	1	Las apariencias engañan
+44	1	1	A blessing in disguise
+44	2	1	No hay mal que por bien no venga
+45	1	1	A dime a dozen
+45	2	1	Algo muy común / A patadas
+46	1	1	Add insult to injury
+46	2	1	Echar sal a la herida
+47	1	1	Beat the clock
+47	2	1	Hacer algo contra reloj
+48	1	1	Bite your tongue
+48	2	1	Morderse la lengua
+49	1	1	Call it a day
+49	2	1	Dar algo por terminado
+50	1	1	Cut corners
+50	2	1	Escatimar / Ir por el camino fácil
+51	1	1	Cut someone some slack
+51	2	1	Dar un margen a alguien
+52	1	1	Easy does it
+52	2	1	Con cuidado / Despacio
+53	1	1	Get out of hand
+53	2	1	Irse de las manos
+54	1	1	Get something out of your system
+54	2	1	Desahogarse
+55	1	1	Hang in there
+55	2	1	Aguanta ahí / No te rindas
+56	1	1	In a nutshell
+56	2	1	En pocas palabras / En resumen
+57	1	1	Jump the gun
+57	2	1	Precipitarse
+58	1	1	Keep your chin up
+58	2	1	Mantener la cabeza alta
+59	1	1	Let someone off the hook
+59	2	1	Librar a alguien del castigo
+60	1	1	Live and learn
+60	2	1	Vivir para aprender
+61	1	1	Look before you leap
+61	2	1	Antes de hacer nada, piénsalo bien
+62	1	1	Make ends meet
+62	2	1	Llegar a fin de mes
+63	1	1	No strings attached
+63	2	1	Sin compromiso
+64	1	1	On thin ice
+64	2	1	Pisar terreno pantanoso
+65	1	1	Out of the blue
+65	2	1	De la nada / De repente
+66	1	1	Play it by ear
+66	2	1	Improvisar sobre la marcha
+67	1	1	Rain on someone’s parade
+67	2	1	Aguar la fiesta a alguien
+68	1	1	Saving for a rainy day
+68	2	1	Ahorrar para cuando vengan las vacas flacas
+69	1	1	See eye to eye
+69	2	1	Estar de acuerdo
+70	1	1	Slow and steady wins the race
+70	2	1	Vísteme despacio que tengo prisa
+71	1	1	Spill the tea
+71	2	1	Contar el chisme
+72	1	1	Straight from the horse’s mouth
+72	2	1	De buena fuente
+73	1	1	Take it easy
+73	2	1	Tómalo con calma
+74	1	1	The elephant in the room
+74	2	1	Un problema obvio que se ignora
+75	1	1	The whole nine yards
+75	2	1	Con todo / Hasta el final
+76	1	1	To burn bridges
+76	2	1	Quemar las naves
+77	1	1	To cut a long story short
+77	2	1	En resumen
+78	1	1	To feel blue
+78	2	1	Estar deprimido / Estar triste
+79	1	1	To give it a shot
+79	2	1	Intentarlo / Darle una oportunidad
+80	1	1	To go cold turkey
+80	2	1	Dejar algo de golpe
+81	1	1	To hit the hay
+81	2	1	Irse al sobre / Irse a dormir
+82	1	1	To keep an eye on
+82	2	1	Vigilar / Echar un ojo
+83	1	1	To lose your touch
+83	2	1	Perder la maña
+84	1	1	To ring a bell
+84	2	1	Sonar de algo
+85	1	1	To stab someone in the back
+85	2	1	Apuñalar por la espalda
+86	1	1	To twist someone’s arm
+86	2	1	Convencer a alguien / Forzar la mano
+87	1	1	Up for grabs
+87	2	1	Disponible para cualquiera
+88	1	1	Your guess is as good as mine
+88	2	1	Ni idea / Sé lo mismo que tú
+89	1	1	A piece of the pie
+89	2	1	Parte del pastel / Beneficio
+90	1	1	Back to square one
+90	2	1	Volver a empezar de cero
+91	1	1	Bite the dust
+91	2	1	Morder el polvo
+92	1	1	Blow off steam
+92	2	1	Desahogarse / Soltar vapor
+93	1	1	Burn the midnight oil
+93	2	1	Quemarse las pestañas / Trasnochar trabajando
+94	1	1	Couch potato
+94	2	1	Persona sedentaria / Teleadicto
+95	1	1	Don’t put all your eggs in one basket
+95	2	1	No te lo juegues todo a una carta
+96	1	1	Face the music
+96	2	1	Dar la cara / Afrontar las consecuencias
+97	1	1	Get cold feet
+97	2	1	Echarse atrás / Tener miedo
+98	1	1	Head over heels
+98	2	1	Estar coladito por alguien
+99	1	1	In the heat of the moment
+99	2	1	En el fragor del momento
+100	1	1	Look on the bright side
+100	2	1	Ver el lado positivo
+201	1	3	A penny for your thoughts
+201	2	3	¿En qué estás pensando?
+202	1	3	Barking up the wrong tree
+202	2	3	Equivocar el camino / Errar el tiro
+203	1	3	Beat a dead horse
+203	2	3	Perder el tiempo en algo inútil
+204	1	3	Bite the bullet
+204	2	3	Aceptar una situación difícil con valor
+205	1	3	Burn the midnight oil
+205	2	3	Trabajar hasta muy tarde
+206	1	3	Cry over spilled milk
+206	2	3	Lamentarse por lo que ya no tiene remedio
+207	1	3	Curiosity killed the cat
+207	2	3	La curiosidad mató al gato
+208	1	3	Don’t count your chickens before they hatch
+208	2	3	No cantes victoria antes de tiempo
+209	1	3	Every cloud has a silver lining
+209	2	3	No hay mal que por bien no venga
+210	1	3	Fit as a fiddle
+210	2	3	Sano como una manzana
+211	1	3	Go down in flames
+211	2	3	Fracasar estrepitosamente
+212	1	3	He has bigger fish to fry
+212	2	3	Tiene asuntos más importantes que atender
+213	1	3	Hear it on the grapevine
+213	2	3	Enterarse por rumores
+214	1	3	In for a penny, in for a pound
+214	2	3	Perdido al río / Si empiezas algo, termínalo
+215	1	3	It’s a long shot
+215	2	3	Es poco probable
+216	1	3	Keep your chin up
+216	2	3	Mantener el ánimo alto
+217	1	3	Kill two birds with one stone
+217	2	3	Matar dos pájaros de un tiro
+218	1	3	Let sleeping dogs lie
+218	2	3	Mejor no revolver el asunto
+219	1	3	Make a long story short
+219	2	3	En resumidas cuentas
+220	1	3	Method to my madness
+220	2	3	Tener un plan pese a parecer loco
+221	1	3	Miss the boat
+221	2	3	Perder la oportunidad
+222	1	3	Not a spark of decency
+222	2	3	No tener ni pizca de decencia
+223	1	3	Off the hook
+223	2	3	Fuera de peligro / Librarse de una
+224	1	3	On the ball
+224	2	3	Estar en lo que hay que estar
+225	1	3	Once in a blue moon
+225	2	3	Muy de vez en cuando
+226	1	3	Picture is worth a thousand words
+226	2	3	Una imagen vale más que mil palabras
+227	1	3	Piece of cake
+227	2	3	Algo muy fácil
+228	1	3	Pull someone’s leg
+228	2	3	Tomar el pelo a alguien
+229	1	3	Pull yourself together
+229	2	3	Recupérate / Contrólate
+230	1	3	See eye to eye
+230	2	3	Estar de acuerdo
+231	1	3	Sit on the fence
+231	2	3	No decidirse / Estar en duda
+232	1	3	Speak of the devil
+232	2	3	Hablando del rey de Roma
+233	1	3	Steal someone’s thunder
+233	2	3	Quitarle el protagonismo a alguien
+234	1	3	Take it with a grain of salt
+234	2	3	No tomárselo al pie de la letra
+235	1	3	Taste of your own medicine
+235	2	3	Probar tu propia medicina
+236	1	3	The best of both worlds
+236	2	3	Lo mejor de dos situaciones
+237	1	3	The elephant in the room
+237	2	3	Un problema obvio que nadie quiere mencionar
+238	1	3	The whole nine yards
+238	2	3	Hasta el final / Con todo
+239	1	3	Through thick and thin
+239	2	3	En las buenas y en las malas
+240	1	3	To add fuel to the fire
+240	2	3	Echar leña al fuego
+241	1	3	To bend over backwards
+241	2	3	Hacer lo imposible por ayudar
+242	1	3	To bite off more than you can chew
+242	2	3	Abarcar más de lo que se puede
+243	1	3	To cut corners
+243	2	3	Ahorrar tiempo o dinero malamente
+244	1	3	To feel under the weather
+244	2	3	Sentirse un poco enfermo
+245	1	3	To get out of hand
+245	2	3	Irse de las manos
+246	1	3	To hit the nail on the head
+246	2	3	Dar en el clavo
+247	1	3	To let the cat out of the bag
+247	2	3	Revelar un secreto
+248	1	3	To make matters worse
+248	2	3	Para colmo de males
+249	1	3	To miss the boat
+249	2	3	Perder el tren / Oportunidad
+250	1	3	To play devil’s advocate
+250	2	3	Hacer de abogado del diablo
+251	1	3	To pull the wool over someone’s eyes
+251	2	3	Engañar a alguien / Dar gato por liebre
+252	1	3	To see eye to eye
+252	2	3	Coincidir en opinión
+253	1	3	To sit on the fence
+253	2	3	No tomar partido
+254	1	3	To spill the beans
+254	2	3	Cantar / Soltar el secreto
+255	1	3	To take the bull by the horns
+255	2	3	Afrontar el problema directamente
+256	1	3	To throw caution to the wind
+256	2	3	Arriesgarse sin miedo
+257	1	3	To turn a blind eye
+257	2	3	Hacer la vista gorda
+258	1	3	Under the weather
+258	2	3	Sentirse mal físicamente
+259	1	3	Up in the air
+259	2	3	Estar en el aire / Sin decidir
+260	1	3	Wrap your head around something
+260	2	3	Llegar a comprender algo difícil
+261	1	3	You can’t judge a book by its cover
+261	2	3	No juzgar por las apariencias
+262	1	3	Your guess is as good as mine
+262	2	3	Sé lo mismo que tú / Ni idea
+263	1	3	A chip on your shoulder
+263	2	3	Estar resentido por algo del pasado
+264	1	3	A drop in the bucket
+264	2	3	Una gota en el océano
+265	1	3	A fool and his money are soon parted
+265	2	3	A los tontos les dura poco el dinero
+266	1	3	A golden handshake
+266	2	3	Una jubilación dorada / Indemnización alta
+267	1	3	A loose cannon
+267	2	3	Una persona impredecible y peligrosa
+268	1	3	A penny saved is a penny earned
+268	2	3	Un centavo ahorrado es un centavo ganado
+269	1	3	A piece of the action
+269	2	3	Una parte del pastel / Beneficio
+270	1	3	A sight for sore eyes
+270	2	3	Una alegría para la vista
+271	1	3	Actions speak louder than words
+271	2	3	Las acciones valen más que las palabras
+272	1	3	All in good time
+272	2	3	Todo a su debido tiempo
+273	1	3	Apple of my eye
+273	2	3	La niña de mis ojos
+274	1	3	As cool as a cucumber
+274	2	3	Tranquilo como una lechuga
+275	1	3	At the drop of a hat
+275	2	3	A la primera de cambio / Sin dudar
+276	1	3	Back to basics
+276	2	3	Volver a lo fundamental
+277	1	3	Barking dogs seldom bite
+277	2	3	Perro que ladra no muerde
+278	1	3	Beat around the bush
+278	2	3	Andarse con rodeos
+279	1	3	Beggars can’t be choosers
+279	2	3	A falta de pan, buenas son tortas
+280	1	3	Best thing since sliced bread
+280	2	3	Lo mejor del mundo
+281	1	3	Better safe than sorry
+281	2	3	Más vale prevenir que lamentar
+282	1	3	Between the devil and the deep blue sea
+282	2	3	Entre la espada y la pared
+283	1	3	Birds of a feather flock together
+283	2	3	Dios los cría y ellos se juntan
+284	1	3	Bite your tongue
+284	2	3	Morderse la lengua
+285	1	3	Blind leading the blind
+285	2	3	Un ciego guiando a otro ciego
+286	1	3	Blood is thicker than water
+286	2	3	La sangre tira más que el agua
+287	1	3	Break the ice
+287	2	3	Romper el hielo
+288	1	3	By the skin of your teeth
+288	2	3	Por los pelos
+289	1	3	Call it a day
+289	2	3	Dar algo por terminado
+290	1	3	Cat’s got your tongue?
+290	2	3	¿Te ha comido la lengua el gato?
+291	1	3	Caught between two stools
+291	2	3	Indeciso entre dos opciones
+292	1	3	Chew the fat
+292	2	3	Charlar o cotillear un rato
+293	1	3	Clean as a whistle
+293	2	3	Limpio como una patena
+294	1	3	Close but no cigar
+294	2	3	Cerca, pero no lo suficiente
+295	1	3	Come hell or high water
+295	2	3	Contra viento y marea
+296	1	3	Cross that bridge when you come to it
+296	2	3	Cada día tiene su afán
+297	1	3	Cut to the chase
+297	2	3	Ir al grano
+298	1	3	Dark horse
+298	2	3	Candidato inesperado
+299	1	3	Dead as a doornail
+299	2	3	Más muerto que mi abuela
+300	1	3	Devil’s advocate
+300	2	3	Abogado del diablo
+\.
+
+
+--
+-- TOC entry 3495 (class 0 OID 17144)
+-- Dependencies: 218
+-- Data for Name: niveles; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.niveles (id_nivel, nivel) FROM stdin;
+1	Básico
+2	Intermedio
+3	Avanzado
+\.
+
+
+--
+-- TOC entry 3497 (class 0 OID 17152)
+-- Dependencies: 220
+-- Data for Name: palabras; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.palabras (id_palabra, id_lenguaje, id_tipo_palabra, id_nivel, palabra) FROM stdin;
+1	1	1	1	Home
+2	2	1	1	Hogar
+3	1	1	1	Water
+4	2	1	1	Agua
+5	1	1	1	Friend
+6	2	1	1	Amigo
+7	1	1	1	Family
+8	2	1	1	Familia
+9	1	1	1	City
+10	2	1	1	Ciudad
+11	1	1	1	School
+12	2	1	1	Escuela
+13	1	1	1	Book
+14	2	1	1	Libro
+15	1	1	1	Time
+16	2	1	1	Tiempo
+17	1	1	1	World
+18	2	1	1	Mundo
+19	1	1	1	Life
+20	2	1	1	Vida
+21	1	1	1	Food
+22	2	1	1	Comida
+23	1	1	1	Sun
+24	2	1	1	Sol
+25	1	1	1	Moon
+26	2	1	1	Luna
+27	1	1	1	Tree
+28	2	1	1	Árbol
+29	1	1	1	Money
+30	2	1	1	Dinero
+31	1	2	1	Good
+32	2	2	1	Bueno
+33	1	2	1	Bad
+34	2	2	1	Malo
+35	1	2	1	Beautiful
+36	2	2	1	Hermoso
+37	1	2	1	Ugly
+38	2	2	1	Feo
+39	1	2	1	Large
+40	2	2	1	Largo
+41	1	2	1	Short
+42	2	2	1	Corto
+43	1	2	1	Cold
+44	2	2	1	Frío
+45	1	2	1	Hot
+46	2	2	1	Caliente
+47	1	2	1	Easy
+48	2	2	1	Fácil
+49	1	2	1	Hard
+50	2	2	1	Difícil
+51	1	2	1	Clean
+52	2	2	1	Limpio
+53	1	2	1	Dirty
+54	2	2	1	Sucio
+55	1	2	1	Strong
+56	2	2	1	Fuerte
+57	1	2	1	Weak
+58	2	2	1	Débil
+59	1	2	1	Smart
+60	2	2	1	Inteligente
+62	2	5	1	Ser o estar
+64	2	5	1	Tener
+66	2	5	1	Hacer
+68	2	5	1	Decir
+70	2	5	1	Ir
+72	2	5	1	Conseguir
+74	2	5	1	Hacer o fabricar
+76	2	5	1	Saber o conocer
+78	2	5	1	Tomar
+80	2	5	1	Ver
+82	2	5	1	Venir
+84	2	5	1	Querer
+86	2	5	1	Mirar
+88	2	5	1	Usar
+90	2	5	1	Encontrar
+91	1	1	1	Body
+92	2	1	1	Cuerpo
+93	1	1	1	Head
+94	2	1	1	Cabeza
+95	1	1	1	Hand
+96	2	1	1	Mano
+97	1	1	1	Street
+98	2	1	1	Calle
+99	1	1	1	Door
+100	2	1	1	Puerta
+101	1	1	1	Window
+102	2	1	1	Ventana
+103	1	1	1	Face
+104	2	1	1	Cara
+105	1	1	1	Country
+106	2	1	1	País
+107	1	1	1	Number
+108	2	1	1	Número
+109	1	1	1	Night
+110	2	1	1	Noche
+111	1	1	1	Day
+112	2	1	1	Día
+113	1	1	1	Paper
+114	2	1	1	Papel
+115	1	1	1	Boy
+116	2	1	1	Niño
+117	1	1	1	Girl
+118	2	1	1	Niña
+119	1	1	1	Part
+120	2	1	1	Parte
+121	1	2	1	Early
+122	2	2	1	Temprano
+123	1	2	1	Late
+124	2	2	1	Tarde
+125	1	2	1	Young
+126	2	2	1	Joven
+127	1	2	1	Old
+128	2	2	1	Viejo
+129	1	2	1	Long
+130	2	2	1	Largo
+131	1	2	1	Little
+132	2	2	1	Pequeño o poco
+133	1	2	1	Great
+134	2	2	1	Gran o genial
+135	1	2	1	Right
+136	2	2	1	Correcto o derecha
+137	1	2	1	Small
+138	2	2	1	Chico
+139	1	2	1	Red
+140	2	2	1	Rojo
+141	1	2	1	Blue
+142	2	2	1	Azul
+143	1	2	1	White
+144	2	2	1	Blanco
+145	1	2	1	Black
+146	2	2	1	Negro
+147	1	2	1	Happy
+148	2	2	1	Feliz
+149	1	2	1	Sad
+150	2	2	1	Triste
+152	2	5	1	Dar
+154	2	5	1	Contar o decir
+156	2	5	1	Trabajar
+158	2	5	1	Llamar
+160	2	5	1	Intentar
+162	2	5	1	Preguntar
+164	2	5	1	Necesitar
+166	2	5	1	Sentir
+168	2	5	1	Convertirse o llegar a ser
+170	2	5	1	Dejar o salir
+172	2	5	1	Poner
+174	2	5	1	Significar
+176	2	5	1	Mantener
+178	2	5	1	Permitir o dejar
+180	2	5	1	Empezar
+181	1	1	1	Head
+182	2	1	1	Cabeza
+183	1	1	1	Side
+184	2	1	1	Lado
+185	1	1	1	Point
+186	2	1	1	Punto
+187	1	1	1	End
+188	2	1	1	Final o extremo
+189	1	1	1	Air
+190	2	1	1	Aire
+191	1	1	1	Land
+192	2	1	1	Tierra o suelo
+193	1	1	1	Home
+194	2	1	1	Hogar o casa
+195	1	1	1	Mother
+196	2	1	1	Madre
+197	1	1	1	Father
+198	2	1	1	Padre
+199	1	1	1	Earth
+200	2	1	1	Tierra (planeta)
+201	1	1	1	Story
+202	2	1	1	Historia o cuento
+203	1	1	1	Boy
+204	2	1	1	Muchacho
+205	1	1	1	Girl
+206	2	1	1	Muchacha
+207	1	1	1	Plant
+208	2	1	1	Planta
+209	1	1	1	Food
+210	2	1	1	Alimento
+211	1	2	1	Important
+212	2	2	1	Importante
+213	1	2	1	Open
+214	2	2	1	Abierto
+215	1	2	1	Kind
+216	2	2	1	Amable
+217	1	2	1	Different
+218	2	2	1	Diferente
+219	1	2	1	Hard
+220	2	2	1	Duro o difícil
+221	1	2	1	Near
+222	2	2	1	Cerca
+223	1	2	1	Far
+224	2	2	1	Lejos
+225	1	2	1	Light
+226	2	2	1	Ligero o claro
+227	1	2	1	Dark
+228	2	2	1	Oscuro
+229	1	2	1	High
+230	2	2	1	Alto
+231	1	2	1	Low
+232	2	2	1	Bajo
+233	1	2	1	Simple
+234	2	2	1	Simple
+235	1	2	1	Own
+236	2	2	1	Propio
+237	1	2	1	Next
+238	2	2	1	Siguiente
+239	1	2	1	Last
+240	2	2	1	Último
+242	2	5	1	Ayudar
+244	2	5	1	Hablar
+246	2	5	1	Girar o doblar
+248	2	5	1	Comenzar
+250	2	5	1	Mostrar
+252	2	5	1	Oír
+254	2	5	1	Jugar o tocar (instrumento)
+256	2	5	1	Correr
+258	2	5	1	Mover
+260	2	5	1	Vivir
+262	2	5	1	Creer
+264	2	5	1	Traer
+266	2	5	1	Pasar o suceder
+268	2	5	1	Escribir
+270	2	5	1	Sentarse
+271	1	1	1	Stand
+272	2	1	1	Soporte
+273	1	1	1	Field
+274	2	1	1	Campo
+275	1	1	1	Fire
+276	2	1	1	Fuego
+277	1	1	1	News
+278	2	1	1	Noticias
+279	1	1	1	Bird
+280	2	1	1	Pájaro
+281	1	1	1	Area
+282	2	1	1	Área
+283	1	1	1	Problem
+284	2	1	1	Problema
+285	1	1	1	Piece
+286	2	1	1	Pieza
+287	1	1	1	Top
+288	2	1	1	Cima
+289	1	1	1	Bottom
+290	2	1	1	Fondo
+291	1	1	1	Rock
+292	2	1	1	Roca
+293	1	1	1	Order
+294	2	1	1	Orden
+295	1	1	1	Door
+296	2	1	1	Puerta
+297	1	1	1	Product
+298	2	1	1	Producto
+299	1	1	1	Wind
+300	2	1	1	Viento
+301	1	1	1	Color
+302	2	1	1	Color
+303	1	1	1	Ship
+304	2	1	1	Barco
+305	1	1	1	Half
+306	2	1	1	Mitad
+307	1	2	1	Full
+308	2	2	1	Lleno
+309	1	2	1	Empty
+310	2	2	1	Vacío
+311	1	2	1	Hot
+312	2	2	1	Caliente
+313	1	2	1	Cold
+314	2	2	1	Frío
+315	1	2	1	Warm
+316	2	2	1	Cálido
+317	1	2	1	Cool
+318	2	2	1	Fresco
+319	1	2	1	Sure
+320	2	2	1	Seguro
+321	1	2	1	Clear
+322	2	2	1	Claro
+323	1	2	1	Strong
+324	2	2	1	Fuerte
+325	1	2	1	Weak
+326	2	2	1	Débil
+327	1	2	1	Possible
+328	2	2	1	Posible
+329	1	2	1	Able
+330	2	2	1	Capaz
+331	1	2	1	Real
+332	2	2	1	Real
+333	1	2	1	True
+334	2	2	1	Verdadero
+335	1	2	1	False
+336	2	2	1	Falso
+337	1	5	1	Stand
+338	2	5	1	Estar de pie
+339	1	5	1	Wait
+340	2	5	1	Esperar
+341	1	5	1	Stop
+342	2	5	1	Detener
+343	1	5	1	Walk
+344	2	5	1	Caminar
+345	1	5	1	Hold
+346	2	5	1	Sostener
+347	1	5	1	Bring
+348	2	5	1	Traer
+349	1	5	1	Understand
+350	2	5	1	Entender
+351	1	5	1	Begin
+352	2	5	1	Empezar
+353	1	5	1	End
+354	2	5	1	Terminar
+355	1	5	1	Change
+356	2	5	1	Cambiar
+357	1	5	1	Buy
+358	2	5	1	Comprar
+359	1	5	1	Sell
+360	2	5	1	Vender
+361	1	5	1	Watch
+362	2	5	1	Observar
+363	1	5	1	Listen
+364	2	5	1	Escuchar
+365	1	5	1	Read
+366	2	5	1	Leer
+367	1	5	1	Eat
+368	2	5	1	Comer
+369	1	5	1	Drink
+370	2	5	1	Beber
+371	1	1	2	Knowledge
+372	2	1	2	Conocimiento
+373	1	1	2	Environment
+374	2	1	2	Medio ambiente
+375	1	1	2	Opportunity
+376	2	1	2	Oportunidad
+377	1	1	2	Society
+378	2	1	2	Sociedad
+379	1	1	2	Journey
+380	2	1	2	Trayecto
+381	1	1	2	Health
+382	2	1	2	Salud
+383	1	1	2	Growth
+384	2	1	2	Crecimiento
+385	1	1	2	Century
+386	2	1	2	Siglo
+387	1	1	2	Purpose
+388	2	1	2	Propósito
+389	1	1	2	Effect
+390	2	1	2	Efecto
+391	1	1	2	Behavior
+392	2	1	2	Comportamiento
+393	1	1	2	Success
+394	2	1	2	Éxito
+395	1	1	2	Goal
+396	2	1	2	Meta
+397	1	1	2	Effort
+398	2	1	2	Esfuerzo
+399	1	1	2	Skill
+400	2	1	2	Habilidad
+401	1	1	2	Damage
+402	2	1	2	Daño
+403	1	1	2	Amount
+404	2	1	2	Cantidad
+405	1	1	2	Advice
+406	2	1	2	Consejo
+407	1	2	2	Useful
+408	2	2	2	Útil
+409	1	2	2	Reliable
+410	2	2	2	Confiable
+411	1	2	2	Average
+412	2	2	2	Promedio
+413	1	2	2	Common
+414	2	2	2	Común
+415	1	2	2	Strange
+416	2	2	2	Extraño
+417	1	2	2	Available
+418	2	2	2	Disponible
+419	1	2	2	Accurate
+420	2	2	2	Preciso
+421	1	2	2	Deep
+422	2	2	2	Profundo
+423	1	2	2	Shallow
+424	2	2	2	Superficial
+425	1	2	2	Sudden
+426	2	2	2	Repentino
+427	1	2	2	Empty
+428	2	2	2	Vacío
+429	1	2	2	Hollow
+430	2	2	2	Hueco
+431	1	2	2	Smooth
+432	2	2	2	Suave o liso
+433	1	2	2	Rough
+434	2	2	2	Áspero
+435	1	2	2	Valuable
+436	2	2	2	Valioso
+437	1	2	2	Useless
+438	2	2	2	Inútil
+439	1	5	2	Achieve
+440	2	5	2	Lograr
+441	1	5	2	Improve
+442	2	5	2	Mejorar
+443	1	5	2	Avoid
+444	2	5	2	Evitar
+445	1	5	2	Develop
+446	2	5	2	Desarrollar
+447	1	5	2	Expect
+448	2	5	2	Esperar (expectativa)
+449	1	5	2	Manage
+450	2	5	2	Gestionar
+451	1	5	2	Suggest
+452	2	5	2	Sugerir
+453	1	5	2	Identify
+454	2	5	2	Identificar
+455	1	5	2	Provide
+456	2	5	2	Proveer
+457	1	5	2	Require
+458	2	5	2	Requerir
+459	1	5	2	Allow
+460	2	5	2	Permitir
+461	1	5	2	Believe
+462	2	5	2	Creer
+463	1	5	2	Choose
+464	2	5	2	Elegir
+465	1	5	2	Describe
+466	2	5	2	Describir
+467	1	5	2	Increase
+468	2	5	2	Aumentar
+469	1	5	2	Reduce
+470	2	5	2	Reducir
+471	1	1	3	Acquisition
+472	2	1	3	Adquisición
+473	1	1	3	Framework
+474	2	1	3	Marco de trabajo
+475	1	1	3	Bias
+476	2	1	3	Sesgo
+477	1	1	3	Hypothesis
+478	2	1	3	Hipótesis
+479	1	1	3	Infrastructure
+480	2	1	3	Infraestructura
+481	1	1	3	Legacy
+482	2	1	3	Legado
+483	1	1	3	Outcome
+484	2	1	3	Resultado
+485	1	1	3	Paradigm
+486	2	1	3	Paradigma
+487	1	1	3	Reliability
+488	2	1	3	Fiabilidad
+489	1	1	3	Constraint
+490	2	1	3	Restricción
+491	1	1	3	Endeavor
+492	2	1	3	Esfuerzo o empeño
+493	1	1	3	Insight
+494	2	1	3	Percepción profunda
+495	1	1	3	Welfare
+496	2	1	3	Bienestar
+497	1	1	3	Shortage
+498	2	1	3	Escasez
+499	1	1	3	Threshold
+500	2	1	3	Umbral
+501	1	1	3	Wealth
+502	2	1	3	Riqueza
+503	1	1	3	Hardship
+504	2	1	3	Adversidad
+505	1	2	3	Ambiguous
+506	2	2	3	Ambiguo
+507	1	2	3	Comprehensive
+508	2	2	3	Integral o exhaustivo
+509	1	2	3	Feasible
+510	2	2	3	Factible
+511	1	2	3	Implicit
+512	2	2	3	Implícito
+513	1	2	3	Inherent
+514	2	2	3	Inherente
+515	1	2	3	Obsolete
+516	2	2	3	Obsoleto
+517	1	2	3	Plausible
+518	2	2	3	Plausible
+519	1	2	3	Resilient
+520	2	2	3	Resiliente
+521	1	2	3	Subtle
+522	2	2	3	Sutil
+523	1	2	3	Sustainable
+524	2	2	3	Sostenible
+525	1	2	3	Vulnerable
+526	2	2	3	Vulnerable
+527	1	2	3	Wholistic
+528	2	2	3	Holístico
+529	1	2	3	Unprecedented
+530	2	2	3	Sin precedentes
+531	1	2	3	Scarcely
+532	2	2	3	Escasamente
+533	1	2	3	Useless
+534	2	2	3	Inútil
+535	1	5	3	Advocate
+536	2	5	3	Abogar o defender
+537	1	5	3	Acknowledge
+538	2	5	3	Reconocer
+539	1	5	3	Compel
+540	2	5	3	Obligar o compeler
+541	1	5	3	Enforce
+542	2	5	3	Hacer cumplir
+543	1	5	3	Enhance
+544	2	5	3	Mejorar o realzar
+545	1	5	3	Foresee
+546	2	5	3	Prever
+547	1	5	3	Hinder
+548	2	5	3	Dificultar o estorbar
+549	1	5	3	Implement
+550	2	5	3	Implementar
+551	1	5	3	Overlook
+552	2	5	3	Pasar por alto
+553	1	5	3	Pursue
+554	2	5	3	Perseguir o buscar
+555	1	5	3	Surpass
+556	2	5	3	Superar
+557	1	5	3	Thrive
+558	2	5	3	Prosperar
+559	1	5	3	Undergo
+560	2	5	3	Someterse a o experimentar
+561	1	5	3	Uphold
+562	2	5	3	Mantener o defender
+563	1	5	3	Yield
+564	2	5	3	Producir o ceder
+565	1	5	3	Assess
+566	2	5	3	Evaluar
+567	1	5	3	Dismiss
+568	2	5	3	Desestimar
+569	1	5	3	Embed
+570	2	5	3	Incrustar
+571	1	4	1	I
+572	2	4	1	Yo
+573	1	4	1	You
+574	2	4	1	Tú / Usted
+575	1	4	1	He
+576	2	4	1	Él
+577	1	4	1	She
+578	2	4	1	Ella
+579	1	4	1	It
+580	2	4	1	Eso / Ello
+581	1	4	1	We
+582	2	4	1	Nosotros
+583	1	4	1	They
+584	2	4	1	Ellos
+585	1	4	1	Me
+586	2	4	1	Mí / Me
+587	1	4	1	Him
+588	2	4	1	Él / Lo (objeto)
+589	1	4	1	Her
+590	2	4	1	Ella / La (objeto)
+591	1	4	1	Us
+592	2	4	1	Nosotros (objeto)
+593	1	4	1	Them
+594	2	4	1	Ellos / Las / Los (objeto)
+595	1	4	1	Mine
+596	2	4	1	Mío / Mía
+597	1	4	1	Yours
+598	2	4	1	Tuyo / Suyo
+599	1	3	1	My
+600	2	3	1	Mi (posesivo)
+601	1	3	1	Your
+602	2	3	1	Tu / Su (de usted)
+603	1	3	1	His
+604	2	3	1	Su (de él)
+605	1	3	1	Her
+606	2	3	1	Su (de ella)
+607	1	3	1	Our
+608	2	3	1	Nuestro
+609	1	3	1	Their
+610	2	3	1	Su (de ellos)
+611	1	3	1	The
+612	2	3	1	El / La / Los / Las
+613	1	3	1	A
+614	2	3	1	Un / Una
+615	1	3	1	An
+616	2	3	1	Un / Una (vocal)
+617	1	3	1	This
+618	2	3	1	Este / Esta
+619	1	3	1	That
+620	2	3	1	Ese / Aquel
+621	1	3	1	These
+622	2	3	1	Estos / Estas
+623	1	3	1	Those
+624	2	3	1	Esos / Aquellos
+625	1	7	1	In
+626	2	7	1	En / Dentro
+627	1	7	1	On
+628	2	7	1	En / Sobre
+629	1	7	1	At
+630	2	7	1	En (punto exacto)
+631	1	7	1	Under
+632	2	7	1	Debajo de
+633	1	7	1	Over
+634	2	7	1	Encima de / Sobre
+635	1	7	1	Between
+636	2	7	1	Entre (dos)
+637	1	7	1	Behind
+638	2	7	1	Detrás de
+639	1	7	1	Next to
+640	2	7	1	Al lado de
+641	1	7	1	With
+642	2	7	1	Con
+643	1	7	1	Without
+644	2	7	1	Sin
+645	1	7	1	Before
+646	2	7	1	Antes de
+647	1	7	1	After
+648	2	7	1	Después de
+649	1	7	1	During
+650	2	7	1	Durante
+651	1	7	1	Against
+652	2	7	1	Contra
+653	1	7	1	About
+654	2	7	1	Sobre / Acerca de
+655	1	6	1	Always
+656	2	6	1	Siempre
+657	1	6	1	Never
+658	2	6	1	Nunca
+659	1	6	1	Often
+660	2	6	1	A menudo
+661	1	6	1	Sometimes
+662	2	6	1	A veces
+663	1	6	1	Usually
+664	2	6	1	Usualmente
+665	1	6	1	Now
+666	2	6	1	Ahora
+667	1	6	1	Later
+668	2	6	1	Más tarde
+669	1	6	1	Soon
+670	2	6	1	Pronto
+671	1	6	1	Today
+672	2	6	1	Hoy
+673	1	6	1	Yesterday
+674	2	6	1	Ayer
+675	1	6	1	Here
+676	2	6	1	Aquí
+677	1	6	1	There
+678	2	6	1	Allí
+679	1	6	1	Far
+680	2	6	1	Lejos
+681	1	6	1	Near
+682	2	6	1	Cerca
+683	1	6	1	Very
+684	2	6	1	Muy
+685	1	6	1	Too
+686	2	6	1	Demasiado
+687	1	6	1	Fast
+688	2	6	1	Rápido
+689	1	6	1	Slowly
+690	2	6	1	Lentamente
+691	1	8	1	And
+692	2	8	1	Y
+693	1	8	1	But
+694	2	8	1	Pero
+695	1	8	1	Or
+696	2	8	1	O
+697	1	8	1	Because
+698	2	8	1	Porque
+699	1	8	1	So
+700	2	8	1	Así que / Entonces
+701	1	8	1	If
+702	2	8	1	Si (condicional)
+703	1	8	1	Although
+704	2	8	1	Aunque
+705	1	8	1	Unless
+706	2	8	1	A menos que
+707	1	8	1	Until
+708	2	8	1	Hasta que
+709	1	8	1	While
+710	2	8	1	Mientras
+711	1	3	1	Every
+712	2	3	1	Cada / Todos
+713	1	3	1	Each
+714	2	3	1	Cada uno
+715	1	3	1	All
+716	2	3	1	Todo / Todos
+717	1	3	1	No
+718	2	3	1	No / Ningún
+719	1	9	1	Hello
+720	2	9	1	Hola
+721	1	9	1	Goodbye
+722	2	9	1	Adiós
+723	1	9	1	Please
+724	2	9	1	Por favor
+725	1	9	1	Thanks
+726	2	9	1	Gracias
+727	1	9	1	Yes
+728	2	9	1	Sí
+729	1	9	1	No
+730	2	9	1	No
+731	1	7	1	For
+732	2	7	1	Para / Por
+733	1	7	1	From
+734	2	7	1	Desde / De
+735	1	4	1	Someone
+736	2	4	1	Alguien
+737	1	4	1	Nobody
+738	2	4	1	Nadie
+739	1	4	1	Everything
+740	2	4	1	Todo (cosa)
+741	1	4	1	Something
+742	2	4	1	Algo
+743	1	6	1	Maybe
+744	2	6	1	Tal vez / Quizás
+745	1	6	1	Still
+746	2	6	1	Todavía / Aún
+747	1	6	1	Already
+748	2	6	1	Ya
+749	1	6	1	Yet
+750	2	6	1	Todavía (negativo)
+751	1	6	1	Together
+752	2	6	1	Juntos
+753	1	6	1	Alone
+754	2	6	1	Solo
+755	1	7	1	Above
+756	2	7	1	Por encima de
+757	1	7	1	Below
+758	2	7	1	Por debajo de
+759	1	7	1	Inside
+760	2	7	1	Dentro de
+761	1	7	1	Outside
+762	2	7	1	Fuera de
+763	1	8	1	As
+764	2	8	1	Como (conector)
+765	1	8	1	Than
+766	2	8	1	Que (comparación)
+767	1	9	1	Wow
+768	2	9	1	Guau / Vaya
+769	1	9	1	Oh
+770	2	9	1	Oh
+771	1	9	1	Help
+772	2	9	1	Auxilio / Ayuda
+773	1	9	1	Sorry
+774	2	9	1	Lo siento / Perdón
+775	1	3	1	Each
+776	2	3	1	Cada
+777	1	3	1	Another
+778	2	3	1	Otro
+779	1	3	1	Other
+780	2	3	1	Otros / Otro
+781	1	3	1	Many
+782	2	3	1	Muchos
+783	1	3	1	Much
+784	2	3	1	Mucho
+785	1	3	1	Few
+786	2	3	1	Pocos
+787	1	3	1	Little
+788	2	3	1	Poco
+789	1	8	1	Then
+790	2	8	1	Entonces
+791	1	6	1	Always
+792	2	6	1	Siempre
+793	1	4	1	Whoever
+794	2	4	1	Quienquiera
+795	1	4	1	Whatever
+796	2	4	1	Lo que sea
+797	1	3	1	Whose
+798	2	3	1	De quién
+799	1	9	1	Ouch
+800	2	9	1	Ay (dolor)
+801	1	9	1	Hey
+802	2	9	1	Ey / Hola
+803	1	3	1	Such
+804	2	3	1	Tal / Semejante
+805	1	7	1	Toward
+806	2	7	1	Hacia
+807	1	7	1	Upon
+808	2	7	1	Sobre / Tras
+809	1	7	1	Within
+810	2	7	1	Dentro de / En el plazo de
+811	1	7	1	Without
+812	2	7	1	Sin
+813	1	8	1	Since
+814	2	8	1	Puesto que / Desde que
+815	1	8	1	Unless
+816	2	8	1	A menos que
+817	1	6	1	Actually
+818	2	6	1	En realidad
+819	1	6	1	Already
+820	2	6	1	Ya
+821	1	6	1	Finally
+822	2	6	1	Finalmente
+823	1	6	1	Quickly
+824	2	6	1	Rápidamente
+825	1	6	1	Clearly
+826	2	6	1	Claramente
+827	1	6	1	Hardly
+828	2	6	1	Apenas
+829	1	6	1	Nearly
+830	2	6	1	Casi
+831	1	1	1	Teacher
+832	2	1	1	Profesor / Maestro
+833	1	1	1	Doctor
+834	2	1	1	Doctor / Médico
+835	1	1	1	Student
+836	2	1	1	Estudiante
+837	1	1	1	Kitchen
+838	2	1	1	Cocina
+839	1	1	1	Bedroom
+840	2	1	1	Dormitorio
+841	1	1	1	Bathroom
+842	2	1	1	Baño
+843	1	1	1	Table
+844	2	1	1	Mesa
+845	1	1	1	Chair
+846	2	1	1	Silla
+847	1	1	1	Car
+848	2	1	1	Carro / Coche
+849	1	1	1	Dog
+850	2	1	1	Perro
+851	1	1	1	Cat
+852	2	1	1	Gato
+853	1	1	1	Bread
+854	2	1	1	Pan
+855	1	1	1	Milk
+856	2	1	1	Leche
+857	1	1	1	Coffee
+858	2	1	1	Café
+859	1	1	1	Tea
+860	2	1	1	Té
+861	1	1	1	Apple
+862	2	1	1	Manzana
+863	1	1	1	Shirt
+864	2	1	1	Camisa
+865	1	1	1	Shoes
+866	2	1	1	Zapatos
+867	1	1	1	Key
+868	2	1	1	Llave
+869	1	1	1	Phone
+870	2	1	1	Teléfono
+871	1	1	1	Cloud
+872	2	1	1	Nube
+873	1	1	1	Rain
+874	2	1	1	Lluvia
+875	1	1	1	Star
+876	2	1	1	Estrella
+877	1	1	1	Sunlight
+878	2	1	1	Luz solar
+879	1	1	1	Heart
+880	2	1	1	Corazón
+881	1	2	1	Big
+882	2	2	1	Grande
+883	1	2	1	Fast
+884	2	2	1	Rápido
+885	1	2	1	Slow
+886	2	2	1	Lento
+887	1	2	1	Heavy
+888	2	2	1	Pesado
+889	1	2	1	Light
+890	2	2	1	Ligero
+891	1	2	1	Rich
+892	2	2	1	Rico (dinero)
+893	1	2	1	Poor
+894	2	2	1	Pobre
+895	1	2	1	Sweet
+896	2	2	1	Dulce
+897	1	2	1	Bitter
+898	2	2	1	Amargo
+899	1	2	1	Angry
+900	2	2	1	Enojado
+901	1	2	1	Quiet
+902	2	2	1	Quieto / Silencioso
+903	1	2	1	Loud
+904	2	2	1	Ruidoso
+905	1	2	1	Funny
+906	2	2	1	Divertido / Gracioso
+907	1	2	1	Serious
+908	2	2	1	Serio
+909	1	2	1	Brave
+910	2	2	1	Valiente
+911	1	2	1	Scared
+912	2	2	1	Asustado
+913	1	2	1	Tired
+914	2	2	1	Cansado
+915	1	2	1	Boring
+916	2	2	1	Aburrido
+917	1	2	1	Dry
+918	2	2	1	Seco
+919	1	2	1	Wet
+920	2	2	1	Mojado
+921	1	2	1	Soft
+922	2	2	1	Blando / Suave
+923	1	2	1	Hard
+924	2	2	1	Duro
+925	1	2	1	Expensive
+926	2	2	1	Caro
+927	1	2	1	Cheap
+928	2	2	1	Barato
+929	1	2	1	Young
+930	2	2	1	Joven
+932	2	5	1	Dormir
+934	2	5	1	Despertar
+936	2	5	1	Abrir
+938	2	5	1	Cerrar
+940	2	5	1	Cocinar
+942	2	5	1	Limpiar
+944	2	5	1	Lavar
+946	2	5	1	Esperar
+948	2	5	1	Estudiar
+950	2	5	1	Aprender
+952	2	5	1	Enseñar
+954	2	5	1	Conducir / Manejar
+956	2	5	1	Volar
+958	2	5	1	Nadar
+960	2	5	1	Bailar
+962	2	5	1	Cantar
+964	2	5	1	Reír
+966	2	5	1	Llorar
+968	2	5	1	Construir
+970	2	5	1	Romper
+972	2	5	1	Comprar
+974	2	5	1	Vender
+976	2	5	1	Pagar
+978	2	5	1	Elegir
+980	2	5	1	Olvidar
+982	2	5	1	Recordar
+984	2	5	1	Enviar
+986	2	5	1	Recibir
+988	2	5	1	Responder
+990	2	5	1	Preguntar
+991	1	1	1	Computer
+992	2	1	1	Computadora / Ordenador
+993	1	1	1	Screen
+994	2	1	1	Pantalla
+995	1	1	1	Keyboard
+996	2	1	1	Teclado
+997	1	1	1	Mouse
+998	2	1	1	Ratón / Mouse
+999	1	1	1	Office
+1000	2	1	1	Oficina
+1001	1	1	1	Job
+1002	2	1	1	Trabajo / Empleo
+1003	1	1	1	Boss
+1004	2	1	1	Jefe
+1005	1	1	1	Worker
+1006	2	1	1	Trabajador
+1007	1	1	1	Client
+1008	2	1	1	Cliente
+1009	1	1	1	Company
+1010	2	1	1	Empresa / Compañía
+1011	1	1	1	Meeting
+1012	2	1	1	Reunión
+1013	1	1	1	Message
+1014	2	1	1	Mensaje
+1015	1	1	1	Email
+1016	2	1	1	Correo electrónico
+1017	1	2	1	Polite
+1018	2	2	1	Educado / Cortés
+1019	1	2	1	Rude
+1020	2	2	1	Grosero / Maleducado
+1021	1	2	1	Kind
+1022	2	2	1	Amable
+1023	1	2	1	Nervous
+1024	2	2	1	Nervioso
+1025	1	2	1	Calm
+1026	2	2	1	Calmado / Tranquilo
+1027	1	2	1	Fast
+1028	2	2	1	Veloz / Rápido
+1029	1	2	1	Careful
+1030	2	2	1	Cuidadoso
+1031	1	2	1	Healthy
+1032	2	2	1	Saludable / Sano
+1033	1	2	1	Sick
+1034	2	2	1	Enfermo
+1035	1	2	1	Strong
+1036	2	2	1	Fuerte
+1038	2	5	1	Pensar
+1040	2	5	1	Esperar
+1042	2	5	1	Esperar (esperanza)
+1044	2	5	1	Viajar
+1046	2	5	1	Quedarse / Permanecer
+1048	2	5	1	Cambiar
+1050	2	5	1	Llamar
+1052	2	5	1	Revisar / Verificar
+1054	2	5	1	Terminar / Finalizar
+1056	2	5	1	Comenzar / Empezar
+1058	2	5	1	Ayudar
+1060	2	5	1	Compartir
+1062	2	5	1	Guardar / Salvar / Ahorrar
+1064	2	5	1	Gastar / Pasar tiempo
+1066	2	5	1	Conocer / Reunirse con
+1068	2	5	1	Mirar / Observar
+1070	2	5	1	Escuchar
+1071	1	1	1	Bread
+1072	2	1	1	Pan
+1073	1	1	1	Table
+1074	2	1	1	Mesa
+1075	1	1	1	Chair
+1076	2	1	1	Silla
+1077	1	1	1	Bottle
+1078	2	1	1	Botella
+1079	1	1	1	Glass
+1080	2	1	1	Vaso
+1081	1	1	1	Plate
+1082	2	1	1	Plato
+1083	1	1	1	Fork
+1084	2	1	1	Tenedor
+1085	1	1	1	Knife
+1086	2	1	1	Cuchillo
+1087	1	1	1	Spoon
+1088	2	1	1	Cuchara
+1089	1	1	1	Wall
+1090	2	1	1	Pared
+1091	1	1	1	Floor
+1092	2	1	1	Suelo
+1093	1	1	1	Roof
+1094	2	1	1	Techo
+1095	1	1	1	Garden
+1096	2	1	1	Jardín
+1097	1	1	1	Bed
+1098	2	1	1	Cama
+1099	1	1	1	Pillow
+1100	2	1	1	Almohada
+1101	1	1	1	Lamp
+1102	2	1	1	Lámpara
+1103	1	1	1	Box
+1104	2	1	1	Caja
+1105	1	1	1	Bag
+1106	2	1	1	Bolsa
+1107	1	1	1	Watch
+1108	2	1	1	Reloj
+1109	1	1	1	Pen
+1110	2	1	1	Bolígrafo
+1111	1	1	1	Pencil
+1112	2	1	1	Lápiz
+1113	1	1	1	Ring
+1114	2	1	1	Anillo
+1115	1	1	1	Hat
+1116	2	1	1	Sombrero
+1117	1	1	1	Coat
+1118	2	1	1	Abrigo
+1119	1	1	1	Pants
+1120	2	1	1	Pantalones
+1121	1	1	1	Dress
+1122	2	1	1	Vestido
+1123	1	1	1	Mountain
+1124	2	1	1	Montaña
+1125	1	1	1	River
+1126	2	1	1	Río
+1127	1	1	1	Sea
+1128	2	1	1	Mar
+1129	1	1	1	Beach
+1130	2	1	1	Playa
+1131	1	1	1	Park
+1132	2	1	1	Parque
+1133	1	1	1	Key
+1134	2	1	1	Llave
+1135	1	1	1	Clock
+1136	2	1	1	Reloj de pared
+1137	1	1	1	Mirror
+1138	2	1	1	Espejo
+1139	1	1	1	Bridge
+1140	2	1	1	Puente
+1141	1	1	1	Animal
+1142	2	1	1	Animal
+1143	1	1	1	Fish
+1144	2	1	1	Pez
+1145	1	1	1	Horse
+1146	2	1	1	Caballo
+1147	1	1	1	Cow
+1148	2	1	1	Vaca
+1149	1	1	1	Fruit
+1150	2	1	1	Fruta
+1151	1	1	1	Orange
+1152	2	1	1	Naranja
+1153	1	1	1	Yellow
+1154	2	1	1	Amarillo
+1155	1	1	1	Green
+1156	2	1	1	Verde
+1157	1	1	1	Letter
+1158	2	1	1	Carta
+1159	1	1	1	Map
+1160	2	1	1	Mapa
+1161	1	1	1	Gold
+1162	2	1	1	Oro
+1163	1	1	1	Silver
+1164	2	1	1	Plata
+1165	1	1	1	Wood
+1166	2	1	1	Madera
+1167	1	1	1	Stone
+1168	2	1	1	Piedra
+1169	1	1	1	Sky
+1170	2	1	1	Cielo
+1171	1	2	1	Fast
+1172	2	2	1	Rápido
+1173	1	2	1	Slow
+1174	2	2	1	Lento
+1175	1	2	1	Heavy
+1176	2	2	1	Pesado
+1177	1	2	1	Light
+1178	2	2	1	Ligero
+1179	1	2	1	Rich
+1180	2	2	1	Rico
+1181	1	2	1	Poor
+1182	2	2	1	Pobre
+1183	1	2	1	Sweet
+1184	2	2	1	Dulce
+1185	1	2	1	Bitter
+1186	2	2	1	Amargo
+1187	1	2	1	Salt
+1188	2	2	1	Salado
+1189	1	2	1	Sour
+1190	2	2	1	Agrio
+1191	1	2	1	Quiet
+1192	2	2	1	Silencioso
+1193	1	2	1	Loud
+1194	2	2	1	Ruidoso
+1195	1	2	1	Clean
+1196	2	2	1	Limpio
+1197	1	2	1	Dirty
+1198	2	2	1	Sucio
+1199	1	2	1	Dry
+1200	2	2	1	Seco
+1201	1	2	1	Wet
+1202	2	2	1	Mojado
+1203	1	2	1	Wide
+1204	2	2	1	Ancho
+1205	1	2	1	Narrow
+1206	2	2	1	Estrecho
+1207	1	2	1	Thick
+1208	2	2	1	Grueso
+1209	1	2	1	Thin
+1210	2	2	1	Delgado
+1211	1	2	1	Tired
+1212	2	2	1	Cansado
+1213	1	2	1	Hungry
+1214	2	2	1	Hambriento
+1215	1	2	1	Thirsty
+1216	2	2	1	Sediento
+1217	1	2	1	Brave
+1218	2	2	1	Valiente
+1219	1	2	1	Calm
+1220	2	2	1	Calmado
+1221	1	2	1	Angry
+1222	2	2	1	Enojado
+1223	1	2	1	Bored
+1224	2	2	1	Aburrido
+1225	1	2	1	Busy
+1226	2	2	1	Ocupado
+1227	1	2	1	Free
+1228	2	2	1	Libre
+1229	1	2	1	Safe
+1230	2	2	1	Seguro
+1231	1	2	1	Dangerous
+1232	2	2	1	Peligroso
+1233	1	2	1	Famous
+1234	2	2	1	Famoso
+1235	1	2	1	Strange
+1236	2	2	1	Extraño
+1237	1	2	1	Deep
+1238	2	2	1	Profundo
+1239	1	2	1	Shallow
+1240	2	2	1	Superficial
+1241	1	2	1	Expensive
+1242	2	2	1	Caro
+1243	1	2	1	Cheap
+1244	2	2	1	Barato
+1245	1	2	1	Cool
+1246	2	2	1	Fresco
+1247	1	2	1	Warm
+1248	2	2	1	Cálido
+1249	1	2	1	Round
+1250	2	2	1	Redondo
+1251	1	2	1	Square
+1252	2	2	1	Cuadrado
+1253	1	2	1	Flat
+1254	2	2	1	Plano
+1255	1	2	1	Shiny
+1256	2	2	1	Brillante
+1257	1	2	1	Clear
+1258	2	2	1	Claro
+1259	1	2	1	Dark
+1260	2	2	1	Oscuro
+1261	1	2	1	Gray
+1262	2	2	1	Gris
+1263	1	2	1	Brown
+1264	2	2	1	Marrón
+1265	1	2	1	Purple
+1266	2	2	1	Morado
+1267	1	2	1	Orange
+1268	2	2	1	Naranja
+1269	1	2	1	Pink
+1270	2	2	1	Rosado
+1271	1	5	1	Drink
+1272	2	5	1	Bebe
+1273	1	5	1	Eat
+1274	2	5	1	Come
+1275	1	5	1	Run
+1276	2	5	1	Corre
+1277	1	5	1	Walk
+1278	2	5	1	Camina
+1279	1	5	1	Sleep
+1280	2	5	1	Duerme
+1281	1	5	1	Speak
+1282	2	5	1	Habla
+1283	1	5	1	Listen
+1284	2	5	1	Escucha
+1285	1	5	1	Read
+1286	2	5	1	Lee
+1287	1	5	1	Write
+1288	2	5	1	Escribe
+1289	1	5	1	Study
+1290	2	5	1	Estudia
+1291	1	5	1	Learn
+1292	2	5	1	Aprende
+1293	1	5	1	Work
+1294	2	5	1	Trabaja
+1295	1	5	1	Buy
+1296	2	5	1	Compra
+1297	1	5	1	Sell
+1298	2	5	1	Vende
+1299	1	5	1	Open
+1300	2	5	1	Abre
+1301	1	5	1	Close
+1302	2	5	1	Cierra
+1303	1	5	1	Start
+1304	2	5	1	Comienza
+1305	1	5	1	Finish
+1306	2	5	1	Termina
+1307	1	5	1	Play
+1308	2	5	1	Juega
+1309	1	5	1	Sing
+1310	2	5	1	Canta
+1311	1	5	1	Dance
+1312	2	5	1	Baila
+1313	1	5	1	Swim
+1314	2	5	1	Nada
+1315	1	5	1	Jump
+1316	2	5	1	Salta
+1317	1	5	1	Fly
+1318	2	5	1	Vuela
+1319	1	5	1	Drive
+1320	2	5	1	Conduce
+1321	1	5	1	Travel
+1322	2	5	1	Viaja
+1323	1	5	1	Help
+1324	2	5	1	Ayuda
+1325	1	5	1	Clean
+1326	2	5	1	Limpia
+1327	1	5	1	Cook
+1328	2	5	1	Cocina
+1329	1	5	1	Wait
+1330	2	5	1	Espera
+1331	1	5	1	Hope
+1332	2	5	1	Espera
+1333	1	5	1	Call
+1334	2	5	1	Llama
+1335	1	5	1	Ask
+1336	2	5	1	Pregunta
+1337	1	5	1	Answer
+1338	2	5	1	Responde
+1339	1	5	1	Sit
+1340	2	5	1	Sienta
+1341	1	5	1	Stand
+1342	2	5	1	Levanta
+1343	1	5	1	Look
+1344	2	5	1	Mira
+1345	1	5	1	Watch
+1346	2	5	1	Observa
+1347	1	5	1	Send
+1348	2	5	1	Envía
+1349	1	5	1	Receive
+1350	2	5	1	Recibe
+1351	1	5	1	Pay
+1352	2	5	1	Paga
+1353	1	5	1	Think
+1354	2	5	1	Piensa
+1355	1	5	1	Understand
+1356	2	5	1	Entiende
+1357	1	5	1	Forget
+1358	2	5	1	Olvida
+1359	1	5	1	Remember
+1360	2	5	1	Recuerda
+1361	1	5	1	Live
+1362	2	5	1	Vive
+1363	1	5	1	Die
+1364	2	5	1	Muere
+1365	1	5	1	Feel
+1366	2	5	1	Siente
+1367	1	5	1	Love
+1368	2	5	1	Ama
+1369	1	5	1	Like
+1370	2	5	1	Gusta
+1371	1	1	1	Head
+1372	2	1	1	Cabeza
+1373	1	1	1	Arm
+1374	2	1	1	Brazo
+1375	1	1	1	Leg
+1376	2	1	1	Pierna
+1377	1	1	1	Hand
+1378	2	1	1	Mano
+1379	1	1	1	Foot
+1380	2	1	1	Pie
+1381	1	1	1	Eye
+1382	2	1	1	Ojo
+1383	1	1	1	Ear
+1384	2	1	1	Oreja
+1385	1	1	1	Nose
+1386	2	1	1	Nariz
+1387	1	1	1	Mouth
+1388	2	1	1	Boca
+1389	1	1	1	Finger
+1390	2	1	1	Dedo
+1391	1	1	1	Back
+1392	2	1	1	Espalda
+1393	1	1	1	Shoulder
+1394	2	1	1	Hombro
+1395	1	1	1	Knee
+1396	2	1	1	Rodilla
+1397	1	1	1	Doctor
+1398	2	1	1	Doctor
+1399	1	1	1	Nurse
+1400	2	1	1	Enfermero
+1401	1	1	1	Teacher
+1402	2	1	1	Profesor
+1403	1	1	1	Student
+1404	2	1	1	Estudiante
+1405	1	1	1	Engineer
+1406	2	1	1	Ingeniero
+1407	1	1	1	Lawyer
+1408	2	1	1	Abogado
+1409	1	1	1	Chef
+1410	2	1	1	Cocinero
+1411	1	1	1	Baker
+1412	2	1	1	Panadero
+1413	1	1	1	Farmer
+1414	2	1	1	Granjero
+1415	1	1	1	Pilot
+1416	2	1	1	Piloto
+1417	1	1	1	Police
+1418	2	1	1	Policía
+1419	1	1	1	Sun
+1420	2	1	1	Sol
+1421	1	1	1	Moon
+1422	2	1	1	Luna
+1423	1	1	1	Star
+1424	2	1	1	Estrella
+1425	1	1	1	Cloud
+1426	2	1	1	Nube
+1427	1	1	1	Rain
+1428	2	1	1	Lluvia
+1429	1	1	1	Snow
+1430	2	1	1	Nieve
+1431	1	1	1	Wind
+1432	2	1	1	Viento
+1433	1	1	1	Storm
+1434	2	1	1	Tormenta
+1435	1	1	1	Heat
+1436	2	1	1	Calor
+1437	1	1	1	Cold
+1438	2	1	1	Frío
+1439	1	1	1	City
+1440	2	1	1	Ciudad
+1441	1	1	1	Town
+1442	2	1	1	Pueblo
+1443	1	1	1	Street
+1444	2	1	1	Calle
+1445	1	1	1	House
+1446	2	1	1	Casa
+1447	1	1	1	Room
+1448	2	1	1	Habitación
+1449	1	1	1	Window
+1450	2	1	1	Ventana
+1451	1	1	1	Door
+1452	2	1	1	Puerta
+1453	1	1	1	Kitchen
+1454	2	1	1	Cocina
+1455	1	1	1	Park
+1456	2	1	1	Parque
+1457	1	1	1	Store
+1458	2	1	1	Tienda
+1459	1	1	1	Market
+1460	2	1	1	Mercado
+1461	1	1	1	Library
+1462	2	1	1	Biblioteca
+1463	1	1	1	Apple
+1464	2	1	1	Manzana
+1465	1	1	1	Banana
+1466	2	1	1	Plátano
+1467	1	1	1	Coffee
+1468	2	1	1	Café
+1469	1	1	1	Tea
+1470	2	1	1	Té
+1471	1	1	1	Water
+1472	2	1	1	Agua
+1473	1	1	1	Rice
+1474	2	1	1	Arroz
+1475	1	1	1	Sugar
+1476	2	1	1	Azúcar
+1477	1	1	1	Meat
+1478	2	1	1	Carne
+1479	1	1	1	Money
+1480	2	1	1	Dinero
+1481	1	1	1	Time
+1482	2	1	1	Tiempo
+1483	1	1	1	News
+1484	2	1	1	Noticias
+1485	1	1	1	Paper
+1486	2	1	1	Papel
+1487	1	1	1	Phone
+1488	2	1	1	Teléfono
+1489	1	1	1	Picture
+1490	2	1	1	Foto
+1491	1	1	1	Friend
+1492	2	1	1	Amigo
+1493	1	1	1	Enemy
+1494	2	1	1	Enemigo
+1495	1	1	1	Family
+1496	2	1	1	Familia
+1497	1	1	1	Morning
+1498	2	1	1	Mañana
+1499	1	1	1	Night
+1500	2	1	1	Noche
+1501	1	2	1	Big
+1502	2	2	1	Grande
+1503	1	2	1	Small
+1504	2	2	1	Pequeño
+1505	1	2	1	Long
+1506	2	2	1	Largo
+1507	1	2	1	Short
+1508	2	2	1	Corto
+1509	1	2	1	High
+1510	2	2	1	Alto
+1511	1	2	1	Low
+1512	2	2	1	Bajo
+1513	1	2	1	Wide
+1514	2	2	1	Ancho
+1515	1	2	1	Young
+1516	2	2	1	Joven
+1517	1	2	1	Old
+1518	2	2	1	Viejo
+1519	1	2	1	Hard
+1520	2	2	1	Duro
+1521	1	2	1	Soft
+1522	2	2	1	Blando
+1523	1	2	1	Strong
+1524	2	2	1	Fuerte
+1525	1	2	1	Weak
+1526	2	2	1	Débil
+1527	1	2	1	Happy
+1528	2	2	1	Feliz
+1529	1	2	1	Sad
+1530	2	2	1	Triste
+1531	1	2	1	New
+1532	2	2	1	Nuevo
+1533	1	2	1	First
+1534	2	2	1	Primero
+1535	1	2	1	Last
+1536	2	2	1	Último
+1537	1	2	1	Black
+1538	2	2	1	Negro
+1539	1	2	1	White
+1540	2	2	1	Blanco
+1541	1	2	1	Blue
+1542	2	2	1	Azul
+1543	1	2	1	Red
+1544	2	2	1	Rojo
+1545	1	5	1	Go
+1546	2	5	1	Va
+1547	1	5	1	Come
+1548	2	5	1	Viene
+1549	1	5	1	Take
+1550	2	5	1	Toma
+1551	1	5	1	Give
+1552	2	5	1	Da
+1553	1	5	1	Find
+1554	2	5	1	Encuentra
+1555	1	5	1	Lose
+1556	2	5	1	Pierde
+1557	1	5	1	Use
+1558	2	5	1	Usa
+1559	1	5	1	Make
+1560	2	5	1	Hace
+1561	1	5	1	Bring
+1562	2	5	1	Trae
+1563	1	5	1	Keep
+1564	2	5	1	Guarda
+1565	1	5	1	Build
+1566	2	5	1	Construye
+1567	1	5	1	Break
+1568	2	5	1	Rompe
+1569	1	5	1	Cut
+1570	2	5	1	Corta
+1571	1	5	1	Fall
+1572	2	5	1	Cae
+1573	1	5	1	Hold
+1574	2	5	1	Sostiene
+1575	1	5	1	Push
+1576	2	5	1	Empuja
+1577	1	5	1	Pull
+1578	2	5	1	Jala
+1579	1	5	1	Show
+1580	2	5	1	Muestra
+1581	1	5	1	Tell
+1582	2	5	1	Cuenta
+1583	1	5	1	Say
+1584	2	5	1	Dice
+1585	1	5	1	Hear
+1586	2	5	1	Oye
+1587	1	5	1	Know
+1588	2	5	1	Sabe
+1589	1	5	1	Meet
+1590	2	5	1	Conoce
+1591	1	5	1	Try
+1592	2	5	1	Intenta
+1593	1	5	1	Fix
+1594	2	5	1	Repara
+1595	1	5	1	Fight
+1596	2	5	1	Pelea
+1597	1	5	1	Win
+1598	2	5	1	Gana
+1599	1	5	1	Laugh
+1600	2	5	1	Ríe
+1601	1	5	1	Cry
+1602	2	5	1	Llora
+1603	1	5	1	Sleep
+1604	2	5	1	Duerme
+1605	1	5	1	Wake
+1606	2	5	1	Despierta
+1607	1	5	1	Wash
+1608	2	5	1	Lava
+1609	1	5	1	Wear
+1610	2	5	1	Viste
+1611	1	5	1	Carry
+1612	2	5	1	Carga
+1613	1	5	1	Choose
+1614	2	5	1	Elige
+1615	1	5	1	Drive
+1616	2	5	1	Conduce
+1617	1	5	1	Fly
+1618	2	5	1	Vuela
+1619	1	5	1	Grow
+1620	2	5	1	Crece
+1621	1	5	1	Hide
+1622	2	5	1	Esconde
+1623	1	5	1	Ride
+1624	2	5	1	Monta
+1625	1	5	1	Sing
+1626	2	5	1	Canta
+1627	1	5	1	Smell
+1628	2	5	1	Huele
+1629	1	5	1	Steal
+1630	2	5	1	Roba
+1631	1	5	1	Teach
+1632	2	5	1	Enseña
+1633	1	5	1	Throw
+1634	2	5	1	Lanza
+1635	1	5	1	Paint
+1636	2	5	1	Pinta
+1637	1	5	1	Draw
+1638	2	5	1	Dibuja
+1639	1	5	1	Touch
+1640	2	5	1	Toca
+1641	1	5	1	Burn
+1642	2	5	1	Quema
+1643	1	5	1	Dream
+1644	2	5	1	Sueña
+1645	1	5	1	Breathe
+1646	2	5	1	Respira
+1647	1	5	1	Listen
+1648	2	5	1	Escucha
+1649	1	5	1	Believe
+1650	2	5	1	Cree
+1651	1	5	1	Save
+1652	2	5	1	Guarda
+1653	1	5	1	Spend
+1654	2	5	1	Gasta
+1655	1	5	1	Wait
+1656	2	5	1	Espera
+1657	1	5	1	Order
+1658	2	5	1	Ordena
+1659	1	5	1	Travel
+1660	2	5	1	Viaja
+1661	1	5	1	Check
+1662	2	5	1	Revisa
+1663	1	5	1	Move
+1664	2	5	1	Mueve
+1665	1	5	1	Change
+1666	2	5	1	Cambia
+1667	1	5	1	Enjoy
+1668	2	5	1	Disfruta
+1669	1	5	1	Fear
+1670	2	5	1	Teme
+61	1	5	1	be
+63	1	5	1	have
+65	1	5	1	do
+67	1	5	1	say
+69	1	5	1	go
+71	1	5	1	get
+73	1	5	1	make
+75	1	5	1	know
+77	1	5	1	take
+79	1	5	1	see
+81	1	5	1	come
+83	1	5	1	want
+85	1	5	1	look
+87	1	5	1	use
+89	1	5	1	find
+151	1	5	1	give
+153	1	5	1	tell
+155	1	5	1	work
+157	1	5	1	call
+159	1	5	1	try
+161	1	5	1	ask
+163	1	5	1	need
+165	1	5	1	feel
+167	1	5	1	become
+169	1	5	1	leave
+171	1	5	1	put
+173	1	5	1	mean
+175	1	5	1	keep
+177	1	5	1	let
+179	1	5	1	begin
+241	1	5	1	help
+243	1	5	1	talk
+245	1	5	1	turn
+247	1	5	1	start
+249	1	5	1	show
+251	1	5	1	hear
+253	1	5	1	play
+255	1	5	1	run
+257	1	5	1	move
+259	1	5	1	live
+261	1	5	1	believe
+263	1	5	1	bring
+265	1	5	1	happen
+267	1	5	1	write
+269	1	5	1	sit
+931	1	5	1	sleep
+933	1	5	1	wake up
+935	1	5	1	open
+937	1	5	1	close
+939	1	5	1	cook
+941	1	5	1	clean
+943	1	5	1	wash
+945	1	5	1	wait
+947	1	5	1	study
+949	1	5	1	learn
+951	1	5	1	teach
+953	1	5	1	drive
+955	1	5	1	fly
+957	1	5	1	swim
+959	1	5	1	dance
+961	1	5	1	sing
+963	1	5	1	laugh
+965	1	5	1	cry
+967	1	5	1	build
+969	1	5	1	break
+971	1	5	1	buy
+973	1	5	1	sell
+975	1	5	1	pay
+977	1	5	1	choose
+979	1	5	1	forget
+981	1	5	1	remember
+983	1	5	1	send
+985	1	5	1	receive
+987	1	5	1	answer
+989	1	5	1	ask
+1037	1	5	1	think
+1039	1	5	1	wait
+1041	1	5	1	hope
+1043	1	5	1	travel
+1045	1	5	1	stay
+1047	1	5	1	change
+1049	1	5	1	call
+1051	1	5	1	check
+1053	1	5	1	finish
+1055	1	5	1	start
+1057	1	5	1	help
+1059	1	5	1	share
+1061	1	5	1	save
+1063	1	5	1	spend
+1065	1	5	1	meet
+1067	1	5	1	watch
+1069	1	5	1	listen
+1671	1	5	1	Add
+1672	2	5	1	Añade
+1673	1	5	1	Allow
+1674	2	5	1	Permite
+1675	1	5	1	Appear
+1676	2	5	1	Aparece
+1677	1	5	1	Arrive
+1678	2	5	1	Llega
+1679	1	5	1	Believe
+1680	2	5	1	Cree
+1681	1	5	1	Borrow
+1682	2	5	1	Pide prestado
+1683	1	5	1	Call
+1684	2	5	1	Llama
+1685	1	5	1	Carry
+1686	2	5	1	Lleva
+1687	1	5	1	Cause
+1688	2	5	1	Causa
+1689	1	5	1	Change
+1690	2	5	1	Cambia
+1691	1	5	1	Close
+1692	2	5	1	Cierra
+1693	1	5	1	Copy
+1694	2	5	1	Copia
+1695	1	5	1	Count
+1696	2	5	1	Cuenta
+1697	1	5	1	Cover
+1698	2	5	1	Cubre
+1699	1	5	1	Cross
+1700	2	5	1	Cruza
+1701	1	5	1	Decide
+1702	2	5	1	Decide
+1703	1	5	1	Die
+1704	2	5	1	Muere
+1705	1	5	1	Draw
+1706	2	5	1	Dibuja
+1707	1	5	1	Dress
+1708	2	5	1	Viste
+1709	1	5	1	Drop
+1710	2	5	1	Deja caer
+1711	1	5	1	Enter
+1712	2	5	1	Entra
+1713	1	5	1	Explain
+1714	2	5	1	Explica
+1715	1	5	1	Fill
+1716	2	5	1	Llena
+1717	1	5	1	Follow
+1718	2	5	1	Sigue
+1719	1	5	1	Guess
+1720	2	5	1	Adivina
+1721	1	5	1	Hate
+1722	2	5	1	Odia
+1723	1	5	1	Help
+1724	2	5	1	Ayuda
+1725	1	5	1	Hope
+1726	2	5	1	Espera
+1727	1	5	1	Hurt
+1728	2	5	1	Lastima
+1729	1	5	1	Join
+1730	2	5	1	Une
+1731	1	5	1	Jump
+1732	2	5	1	Salta
+1733	1	5	1	Kill
+1734	2	5	1	Mata
+1735	1	5	1	Kiss
+1736	2	5	1	Besa
+1737	1	5	1	Laugh
+1738	2	5	1	Ríe
+1739	1	5	1	Lie
+1740	2	5	1	Miente
+1741	1	5	1	Like
+1742	2	5	1	Gusta
+1743	1	5	1	Listen
+1744	2	5	1	Escucha
+1745	1	5	1	Live
+1746	2	5	1	Vive
+1747	1	5	1	Lose
+1748	2	5	1	Pierde
+1749	1	5	1	Love
+1750	2	5	1	Ama
+1751	1	5	1	Move
+1752	2	5	1	Mueve
+1753	1	5	1	Open
+1754	2	5	1	Abrir
+1755	1	5	1	Pack
+1756	2	5	1	Empaca
+1757	1	5	1	Pass
+1758	2	5	1	Pasa
+1759	1	5	1	Pick
+1760	2	5	1	Recoge
+1761	1	5	1	Plan
+1762	2	5	1	Plantea
+1763	1	5	1	Play
+1764	2	5	1	Juega
+1765	1	5	1	Pull
+1766	2	5	1	Jala
+1767	1	5	1	Push
+1768	2	5	1	Empuja
+1769	1	5	1	Rain
+1770	2	5	1	Llueve
+1771	1	5	2	Accept
+1772	2	5	2	Acepta
+1773	1	5	2	Advise
+1774	2	5	2	Aconseja
+1775	1	5	2	Agree
+1776	2	5	2	Acuerda
+1777	1	5	2	Argue
+1778	2	5	2	Arguye
+1779	1	5	2	Assume
+1780	2	5	2	Asume
+1781	1	5	2	Attack
+1782	2	5	2	Ataca
+1783	1	5	2	Attend
+1784	2	5	2	Asiste
+1785	1	5	2	Bake
+1786	2	5	2	Hornea
+1787	1	5	2	Behave
+1788	2	5	2	Se comporta
+1789	1	5	2	Belong
+1790	2	5	2	Pertenece
+1791	1	5	2	Blame
+1792	2	5	2	Culpa
+1793	1	5	2	Brief
+1794	2	5	2	Informa
+1795	1	5	2	Calculate
+1796	2	5	2	Calcula
+1797	1	5	2	Celebrate
+1798	2	5	2	Celebra
+1799	1	5	2	Claim
+1800	2	5	2	Reclama
+1801	1	5	2	Compare
+1802	2	5	2	Compara
+1803	1	5	2	Compete
+1804	2	5	2	Compite
+1805	1	5	2	Confirm
+1806	2	5	2	Confirma
+1807	1	5	2	Connect
+1808	2	5	2	Conecta
+1809	1	5	2	Consider
+1810	2	5	2	Considera
+1811	1	5	2	Contain
+1812	2	5	2	Contiene
+1813	1	5	2	Control
+1814	2	5	2	Controla
+1815	1	5	2	Create
+1816	2	5	2	Crea
+1817	1	5	2	Damage
+1818	2	5	2	Daña
+1819	1	5	2	Deliver
+1820	2	5	2	Entrega
+1821	1	5	2	Depend
+1822	2	5	2	Depende
+1823	1	5	2	Deserve
+1824	2	5	2	Merece
+1825	1	5	2	Design
+1826	2	5	2	Diseña
+1827	1	5	2	Destroy
+1828	2	5	2	Destruye
+1829	1	5	2	Discover
+1830	2	5	2	Descubre
+1831	1	5	2	Divide
+1832	2	5	2	Divide
+1833	1	5	2	Earn
+1834	2	5	2	Gana
+1835	1	5	2	Encourage
+1836	2	5	2	Anima
+1837	1	5	2	Enjoy
+1838	2	5	2	Disfruta
+1839	1	5	2	Examine
+1840	2	5	2	Examina
+1841	1	5	2	Exist
+1842	2	5	2	Existe
+1843	1	5	2	Expand
+1844	2	5	2	Expande
+1845	1	5	2	Expect
+1846	2	5	2	Espera
+1847	1	5	2	Express
+1848	2	5	2	Expresa
+1849	1	5	2	Handle
+1850	2	5	2	Maneja
+1851	1	5	2	Imagine
+1852	2	5	2	Imagina
+1853	1	5	2	Include
+1854	2	5	2	Incluye
+1855	1	5	2	Insist
+1856	2	5	2	Insiste
+1857	1	5	2	Introduce
+1858	2	5	2	Introduce
+1859	1	5	2	Involve
+1860	2	5	2	Involucra
+1861	1	5	2	Maintain
+1862	2	5	2	Mantiene
+1863	1	5	2	Measure
+1864	2	5	2	Mide
+1865	1	5	2	Mention
+1866	2	5	2	Menciona
+1867	1	5	2	Negotiate
+1868	2	5	2	Negocia
+1869	1	5	2	Observe
+1870	2	5	2	Observa
+1871	1	5	3	Acquire
+1872	2	5	3	Adquiere
+1873	1	5	3	Advocate
+1874	2	5	3	Aboga
+1875	1	5	3	Alleviate
+1876	2	5	3	Alivia
+1877	1	5	3	Amend
+1878	2	5	3	Enmienda
+1879	1	5	3	Anticipate
+1880	2	5	3	Anticipa
+1881	1	5	3	Appease
+1882	2	5	3	Apacigua
+1883	1	5	3	Ascertain
+1884	2	5	3	Asegura
+1885	1	5	3	Assert
+1886	2	5	3	Afirma
+1887	1	5	3	Bolster
+1888	2	5	3	Refuerza
+1889	1	5	3	Coincide
+1890	2	5	3	Coincide
+1891	1	5	3	Collaborate
+1892	2	5	3	Colabora
+1893	1	5	3	Commence
+1894	2	5	3	Comienza
+1895	1	5	3	Comply
+1896	2	5	3	Cumple
+1897	1	5	3	Conceive
+1898	2	5	3	Concibe
+1899	1	5	3	Condone
+1900	2	5	3	Condona
+1901	1	5	3	Constitute
+1902	2	5	3	Constituye
+1903	1	5	3	Curtail
+1904	2	5	3	Recorta
+1905	1	5	3	Depict
+1906	2	5	3	Representa
+1907	1	5	3	Diminish
+1908	2	5	3	Disminuye
+1909	1	5	3	Disclose
+1910	2	5	3	Revela
+1911	1	5	3	Elaborate
+1912	2	5	3	Elabora
+1913	1	5	3	Emanate
+1914	2	5	3	Emana
+1915	1	5	3	Embrace
+1916	2	5	3	Abraza
+1917	1	5	3	Empower
+1918	2	5	3	Empodera
+1919	1	5	3	Endorse
+1920	2	5	3	Respalda
+1921	1	5	3	Engender
+1922	2	5	3	Engendra
+1923	1	5	3	Exacerbate
+1924	2	5	3	Exacerba
+1925	1	5	3	Exert
+1926	2	5	3	Ejerce
+1927	1	5	3	Facilitate
+1928	2	5	3	Facilita
+1929	1	5	3	Fluctuate
+1930	2	5	3	Fluctúa
+1931	1	5	3	Foster
+1932	2	5	3	Fomenta
+1933	1	5	3	Halt
+1934	2	5	3	Detiene
+1935	1	5	3	Impeded
+1936	2	5	3	Impide
+1937	1	5	3	Incur
+1938	2	5	3	Incurre
+1939	1	5	3	Induce
+1940	2	5	3	Induce
+1941	1	5	3	Inhibit
+1942	2	5	3	Inhibe
+1943	1	5	3	Instigate
+1944	2	5	3	Instiga
+1945	1	5	3	Lecture
+1946	2	5	3	Diserta
+1947	1	5	3	Mitigate
+1948	2	5	3	Mitiga
+1949	1	5	3	Nurture
+1950	2	5	3	Nutre
+1951	1	5	3	Obscure
+1952	2	5	3	Oscurece
+1953	1	5	3	Obtain
+1954	2	5	3	Obtiene
+1955	1	5	3	Permeate
+1956	2	5	3	Permea
+1957	1	5	3	Ponder
+1958	2	5	3	Pondera
+1959	1	5	3	Preclude
+1960	2	5	3	Excluye
+1961	1	5	3	Rectify
+1962	2	5	3	Rectifica
+1963	1	5	3	Relinquish
+1964	2	5	3	Renuncia
+1965	1	5	3	Scrutinize
+1966	2	5	3	Escruta
+1967	1	5	3	Subside
+1968	2	5	3	Amaina
+1969	1	5	3	Validate
+1970	2	5	3	Valida
+1971	1	5	1	Agree
+1972	2	5	1	Acuerda
+1973	1	5	1	Answer
+1974	2	5	1	Responde
+1975	1	5	1	Arrive
+1976	2	5	1	Llega
+1977	1	5	1	Ask
+1978	2	5	1	Pregunta
+1979	1	5	1	Become
+1980	2	5	1	Llega a ser
+1981	1	5	1	Begin
+1982	2	5	1	Empieza
+1983	1	5	1	Believe
+1984	2	5	1	Cree
+1985	1	5	1	Borrow
+1986	2	5	1	Pide prestado
+1987	1	5	1	Break
+1988	2	5	1	Rompe
+1989	1	5	1	Bring
+1990	2	5	1	Trae
+1991	1	5	1	Build
+1992	2	5	1	Construye
+1993	1	5	1	Buy
+1994	2	5	1	Compra
+1995	1	5	1	Call
+1996	2	5	1	Llama
+1997	1	5	1	Carry
+1998	2	5	1	Lleva
+1999	1	5	1	Change
+2000	2	5	1	Cambia
+2001	1	5	1	Check
+2002	2	5	1	Revisa
+2003	1	5	1	Choose
+2004	2	5	1	Elige
+2005	1	5	1	Clean
+2006	2	5	1	Limpia
+2007	1	5	1	Close
+2008	2	5	1	Cierra
+2009	1	5	1	Come
+2010	2	5	1	Viene
+2011	1	5	1	Cook
+2012	2	5	1	Cocina
+2013	1	5	1	Copy
+2014	2	5	1	Copia
+2015	1	5	1	Count
+2016	2	5	1	Cuenta
+2017	1	5	1	Cry
+2018	2	5	1	Llora
+2019	1	5	1	Cut
+2020	2	5	1	Corta
+2021	1	5	1	Dance
+2022	2	5	1	Baila
+2023	1	5	1	Die
+2024	2	5	1	Muere
+2025	1	5	1	Do
+2026	2	5	1	Hace
+2027	1	5	1	Draw
+2028	2	5	1	Dibuja
+2029	1	5	1	Drink
+2030	2	5	1	Bebe
+2031	1	5	1	Drive
+2032	2	5	1	Conduce
+2033	1	5	1	Eat
+2034	2	5	1	Come
+2035	1	5	1	Explain
+2036	2	5	1	Explica
+2037	1	5	1	Fall
+2038	2	5	1	Cae
+2039	1	5	1	Feel
+2040	2	5	1	Siente
+2041	1	5	1	Fill
+2042	2	5	1	Llena
+2043	1	5	1	Find
+2044	2	5	1	Encuentra
+2045	1	5	1	Finish
+2046	2	5	1	Termina
+2047	1	5	1	Follow
+2048	2	5	1	Sigue
+2049	1	5	1	Forget
+2050	2	5	1	Olvida
+2051	1	5	1	Give
+2052	2	5	1	Da
+2053	1	5	1	Go
+2054	2	5	1	Va
+2055	1	5	1	Happen
+2056	2	5	1	Sucede
+2057	1	5	1	Have
+2058	2	5	1	Tiene
+2059	1	5	1	Hear
+2060	2	5	1	Oye
+2061	1	5	1	Help
+2062	2	5	1	Ayuda
+2063	1	5	1	Hold
+2064	2	5	1	Sostiene
+2065	1	5	1	Hope
+2066	2	5	1	Espera
+2067	1	5	1	Keep
+2068	2	5	1	Guarda
+2069	1	5	1	Know
+2070	2	5	1	Sabe
+2071	1	5	2	Admit
+2072	2	5	2	Admite
+2073	1	5	2	Agree
+2074	2	5	2	Acuerda
+2075	1	5	2	Allow
+2076	2	5	2	Permite
+2077	1	5	2	Appear
+2078	2	5	2	Aparece
+2079	1	5	2	Apply
+2080	2	5	2	Aplica
+2081	1	5	2	Argue
+2082	2	5	2	Arguye
+2083	1	5	2	Arrange
+2084	2	5	2	Arregla
+2085	1	5	2	Assist
+2086	2	5	2	Asiste
+2087	1	5	2	Attach
+2088	2	5	2	Adjunta
+2089	1	5	2	Avoid
+2090	2	5	2	Evita
+2091	1	5	2	Become
+2092	2	5	2	Se vuelve
+2093	1	5	2	Behave
+2094	2	5	2	Se comporta
+2095	1	5	2	Believe
+2096	2	5	2	Cree
+2097	1	5	2	Belong
+2098	2	5	2	Pertenece
+2099	1	5	2	Borrow
+2100	2	5	2	Pide prestado
+2101	1	5	2	Cancel
+2102	2	5	2	Cancela
+2103	1	5	2	Cause
+2104	2	5	2	Causa
+2105	1	5	2	Celebrate
+2106	2	5	2	Celebra
+2107	1	5	2	Choose
+2108	2	5	2	Escoge
+2109	1	5	2	Compare
+2110	2	5	2	Compara
+2111	1	5	2	Complain
+2112	2	5	2	Se queja
+2113	1	5	2	Complete
+2114	2	5	2	Completa
+2115	1	5	2	Confirm
+2116	2	5	2	Confirma
+2117	1	5	2	Connect
+2118	2	5	2	Conecta
+2119	1	5	2	Consider
+2120	2	5	2	Considera
+2121	1	5	2	Contain
+2122	2	5	2	Contiene
+2123	1	5	2	Continue
+2124	2	5	2	Continúa
+2125	1	5	2	Control
+2126	2	5	2	Controla
+2127	1	5	2	Create
+2128	2	5	2	Crea
+2129	1	5	2	Damage
+2130	2	5	2	Daña
+2131	1	5	2	Decide
+2132	2	5	2	Decide
+2133	1	5	2	Deliver
+2134	2	5	2	Entrega
+2135	1	5	2	Depend
+2136	2	5	2	Depende
+2137	1	5	2	Describe
+2138	2	5	2	Describe
+2139	1	5	2	Design
+2140	2	5	2	Diseña
+2141	1	5	2	Destroy
+2142	2	5	2	Destruye
+2143	1	5	2	Develop
+2144	2	5	2	Desarrolla
+2145	1	5	2	Discover
+2146	2	5	2	Descubre
+2147	1	5	2	Discuss
+2148	2	5	2	Discute
+2149	1	5	2	Divide
+2150	2	5	2	Divide
+2151	1	5	2	Earn
+2152	2	5	2	Gana
+2153	1	5	2	Encourage
+2154	2	5	2	Anima
+2155	1	5	2	Enjoy
+2156	2	5	2	Disfruta
+2157	1	5	2	Examine
+2158	2	5	2	Examina
+2159	1	5	2	Expect
+2160	2	5	2	Espera
+2161	1	5	2	Explain
+2162	2	5	2	Explica
+2163	1	5	2	Explore
+2164	2	5	2	Explora
+2165	1	5	2	Follow
+2166	2	5	2	Sigue
+2167	1	5	2	Forget
+2168	2	5	2	Olvida
+2169	1	5	2	Forgive
+2170	2	5	2	Perdona
+2171	1	5	3	Abstain
+2172	2	5	3	Se abstiene
+2173	1	5	3	Acquiesce
+2174	2	5	3	Consiente
+2175	1	5	3	Advocate
+2176	2	5	3	Aboga
+2177	1	5	3	Ameliorate
+2178	2	5	3	Mejora
+2179	1	5	3	Ascertain
+2180	2	5	3	Asegura
+2181	1	5	3	Assimilate
+2182	2	5	3	Asimila
+2183	1	5	3	Augment
+2184	2	5	3	Aumenta
+2185	1	5	3	Coalesce
+2186	2	5	3	Se une
+2187	1	5	3	Collaborate
+2188	2	5	3	Colabora
+2189	1	5	3	Commemorate
+2190	2	5	3	Conmemora
+2191	1	5	3	Compensate
+2192	2	5	3	Compensa
+2193	1	5	3	Concur
+2194	2	5	3	Concuerda
+2195	1	5	3	Condescend
+2196	2	5	3	Condesciende
+2197	1	5	3	Consolidate
+2198	2	5	3	Consolida
+2199	1	5	3	Contradict
+2200	2	5	3	Contradice
+2201	1	5	3	Corroborate
+2202	2	5	3	Corrobora
+2203	1	5	3	Deduce
+2204	2	5	3	Deduce
+2205	1	5	3	Delineate
+2206	2	5	3	Delinea
+2207	1	5	3	Demonstrate
+2208	2	5	3	Demuestra
+2209	1	5	3	Depreciate
+2210	2	5	3	Deprecia
+2211	1	5	3	Devise
+2212	2	5	3	Idea
+2213	1	5	3	Differentiate
+2214	2	5	3	Diferencia
+2215	1	5	3	Disseminate
+2216	2	5	3	Difunde
+2217	1	5	3	Diverge
+2218	2	5	3	Diverge
+2219	1	5	3	Elaborate
+2220	2	5	3	Elabora
+2221	1	5	3	Emulate
+2222	2	5	3	Emula
+2223	1	5	3	Encapsulate
+2224	2	5	3	Encapsula
+2225	1	5	3	Endeavor
+2226	2	5	3	Se esfuerza
+2227	1	5	3	Enhance
+2228	2	5	3	Realza
+2229	1	5	3	Enumerate
+2230	2	5	3	Enumera
+2231	1	5	3	Equivocate
+2232	2	5	3	Tergiversa
+2233	1	5	3	Exacerbate
+2234	2	5	3	Exacerba
+2235	1	5	3	Exemplify
+2236	2	5	3	Ejemplifica
+2237	1	5	3	Extrapolate
+2238	2	5	3	Extrapola
+2239	1	5	3	Facilitate
+2240	2	5	3	Facilita
+2241	1	5	3	Fluctuate
+2242	2	5	3	Fluctúa
+2243	1	5	3	Generalize
+2244	2	5	3	Generaliza
+2245	1	5	3	Hypothesize
+2246	2	5	3	Hipotetiza
+2247	1	5	3	Implement
+2248	2	5	3	Implementa
+2249	1	5	3	Incorporate
+2250	2	5	3	Incorpora
+2251	1	5	3	Infer
+2252	2	5	3	Infiere
+2253	1	5	3	Innovate
+2254	2	5	3	Innova
+2255	1	5	3	Integrate
+2256	2	5	3	Integra
+2257	1	5	3	Interpolate
+2258	2	5	3	Interpola
+2259	1	5	3	Interpret
+2260	2	5	3	Interpreta
+2261	1	5	3	Justify
+2262	2	5	3	Justifica
+2263	1	5	3	Mitigate
+2264	2	5	3	Mitiga
+2265	1	5	3	Necessitate
+2266	2	5	3	Necesita
+2267	1	5	3	Negate
+2268	2	5	3	Niega
+2269	1	5	3	Obfuscate
+2270	2	5	3	Ofusca
+\.
+
+
+--
+-- TOC entry 3498 (class 0 OID 17155)
+-- Dependencies: 221
+-- Data for Name: tipo_palabra; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.tipo_palabra (id_tipo_palabra, tipo_palabra) FROM stdin;
+1	Sustantivos
+2	Adjetivos
+3	Determinantes
+4	Pronombres
+5	Verbos
+6	Adverbios
+7	Preposiciones
+8	Conjunciones
+9	Interjecciones
+\.
+
+
+--
+-- TOC entry 3500 (class 0 OID 17159)
+-- Dependencies: 223
+-- Data for Name: tipos_archivo; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.tipos_archivo (id_tipo_archivo, tipo_archivo) FROM stdin;
+1	Palabras
+2	Verbos Compuestos
+3	Modismos
+\.
+
+
+--
+-- TOC entry 3502 (class 0 OID 17163)
+-- Dependencies: 225
+-- Data for Name: usuarios; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.usuarios (id_usuario, nombre, correo, alias, clave, fecha_registro, id_lenguaje, fecha_nacimiento, edad) FROM stdin;
+1	Edwin Reyes	edwinreyes308@gmail.com	EdwinReyes	peluche_27	2026-05-11 21:28:24.393832	1	1973-07-14	53
+3	Maria Elvira Perez de Reyes	mariaelviraperezcardenas@gmail.com	peluche	peluche*08	2026-05-11 22:25:44.182985	2	1960-07-24	66
+\.
+
+
+--
+-- TOC entry 3504 (class 0 OID 17174)
+-- Dependencies: 227
+-- Data for Name: verbos_compuestos; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.verbos_compuestos (id_verbo, id_lenguaje, id_nivel, verbo) FROM stdin;
+1	1	1	Ask for
+1	2	1	Pedir
+2	1	1	Back up
+2	2	1	Apoyar / Respaldar
+3	1	1	Blow up
+3	2	1	Explotar
+4	1	1	Break down
+4	2	1	Averiarse / Romperse
+5	1	1	Break up
+5	2	1	Terminar una relación
+6	1	1	Bring up
+6	2	1	Mencionar / Criar
+7	1	1	Call back
+7	2	1	Devolver una llamada
+8	1	1	Call off
+8	2	1	Cancelar
+9	1	1	Carry on
+9	2	1	Continuar
+10	1	1	Carry out
+10	2	1	Llevar a cabo
+11	1	1	Check in
+11	2	1	Registrarse
+12	1	1	Check out
+12	2	1	Pagar y salir / Investigar
+13	1	1	Clean up
+13	2	1	Limpiar
+14	1	1	Come back
+14	2	1	Regresar
+15	1	1	Come in
+15	2	1	Entrar
+16	1	1	Come on
+16	2	1	¡Vamos! / Darse prisa
+17	1	1	Cut down
+17	2	1	Reducir
+18	1	1	Cut off
+18	2	1	Cortar / Interrumpir
+19	1	1	Dress up
+19	2	1	Disfrazarse / Vestirse elegante
+20	1	1	Drop off
+20	2	1	Dejar a alguien o algo
+21	1	1	Eat out
+21	2	1	Comer fuera
+22	1	1	End up
+22	2	1	Terminar / Acabar
+23	1	1	Fall down
+23	2	1	Caerse
+24	1	1	Fill in
+24	2	1	Rellenar (un formulario)
+25	1	1	Fill up
+25	2	1	Llenar por completo
+26	1	1	Find out
+26	2	1	Descubrir / Enterarse
+27	1	1	Get along
+27	2	1	Llevarse bien
+28	1	1	Get away
+28	2	1	Escapar
+29	1	1	Get back
+29	2	1	Volver / Recuperar
+30	1	1	Get in
+30	2	1	Entrar (a un coche)
+31	1	1	Get off
+31	2	1	Bajarse (de un bus/tren)
+32	1	1	Get on
+32	2	1	Subirse / Llevarse
+33	1	1	Get out
+33	2	1	Salir
+34	1	1	Get up
+34	2	1	Levantarse
+35	1	1	Give away
+35	2	1	Regalar / Revelar
+36	1	1	Give back
+36	2	1	Devolver
+37	1	1	Give up
+37	2	1	Rendirse / Dejar un hábito
+38	1	1	Go away
+38	2	1	Irse
+39	1	1	Go back
+39	2	1	Volver
+40	1	1	Go on
+40	2	1	Continuar / Pasar
+41	1	1	Go out
+41	2	1	Salir (de fiesta/paseo)
+42	1	1	Go up
+42	2	1	Subir / Aumentar
+43	1	1	Grow up
+43	2	1	Crecer / Hacerse adulto
+44	1	1	Hang on
+44	2	1	Esperar un momento
+45	1	1	Hang up
+45	2	1	Colgar (el teléfono)
+46	1	1	Hold on
+46	2	1	Esperar / Aguantar
+47	1	1	Hurry up
+47	2	1	Darse prisa
+48	1	1	Keep on
+48	2	1	Seguir haciendo algo
+49	1	1	Keep up
+49	2	1	Mantener el ritmo
+50	1	1	Let in
+50	2	1	Dejar entrar
+51	1	1	Look after
+51	2	1	Cuidar a
+52	1	1	Look for
+52	2	1	Buscar
+53	1	1	Look forward to
+53	2	1	Anhelar / Tener ganas
+54	1	1	Look out
+54	2	1	Tener cuidado
+55	1	1	Look up
+55	2	1	Buscar (en un libro/lista)
+56	1	1	Make up
+56	2	1	Inventar / Reconciliarse
+57	1	1	Move in
+57	2	1	Mudarse (a un lugar)
+58	1	1	Move out
+58	2	1	Mudarse (irse de un lugar)
+59	1	1	Pay back
+59	2	1	Devolver dinero
+60	1	1	Pick up
+60	2	1	Recoger / Levantar
+61	1	1	Point out
+61	2	1	Señalar / Indicar
+62	1	1	Put away
+62	2	1	Guardar en su sitio
+63	1	1	Put off
+63	2	1	Posponer
+64	1	1	Put on
+64	2	1	Ponerse (ropa/música)
+65	1	1	Put out
+65	2	1	Extinguir / Apagar fuego
+66	1	1	Run away
+66	2	1	Huir
+67	1	1	Run out of
+67	2	1	Quedarse sin algo
+68	1	1	Set up
+68	2	1	Configurar / Instalar
+69	1	1	Show up
+69	2	1	Aparecer / Llegar
+70	1	1	Sit down
+70	2	1	Sentarse
+71	1	1	Stand up
+71	2	1	Ponerse de pie
+72	1	1	Switch off
+72	2	1	Apagar
+73	1	1	Switch on
+73	2	1	Encender
+74	1	1	Take after
+74	2	1	Parecerse a
+75	1	1	Take away
+75	2	1	Llevarse / Quitar
+76	1	1	Take off
+76	2	1	Quitarse (ropa) / Despegar
+77	1	1	Take out
+77	2	1	Sacar
+78	1	1	Talk about
+78	2	1	Hablar sobre
+79	1	1	Throw away
+79	2	1	Tirar a la basura
+80	1	1	Try on
+80	2	1	Probarse (ropa)
+81	1	1	Try out
+81	2	1	Probar algo nuevo
+82	1	1	Turn down
+82	2	1	Bajar volumen / Rechazar
+83	1	1	Turn off
+83	2	1	Apagar
+84	1	1	Turn on
+84	2	1	Encender
+85	1	1	Turn up
+85	2	1	Subir volumen / Aparecer
+86	1	1	Wake up
+86	2	1	Despertarse
+87	1	1	Warm up
+87	2	1	Calentar
+88	1	1	Watch out
+88	2	1	Tener cuidado
+89	1	1	Work out
+89	2	1	Hacer ejercicio / Resolver
+90	1	1	Write down
+90	2	1	Anotar
+91	1	1	Break into
+91	2	1	Entrar a la fuerza
+92	1	1	Call on
+92	2	1	Visitar / Recurrir a
+93	1	1	Check out
+93	2	1	Echar un vistazo
+94	1	1	Come across
+94	2	1	Encontrarse con algo
+95	1	1	Cut in
+95	2	1	Interrumpir
+96	1	1	Drop in
+96	2	1	Pasar a visitar
+97	1	1	Get by
+97	2	1	Arreglárselas
+98	1	1	Give in
+98	2	1	Ceder
+99	1	1	Look into
+99	2	1	Investigar
+100	1	1	Set off
+100	2	1	Partir / Salir de viaje
+201	1	1	Abide by
+202	2	1	Cumplir con / Acatar
+203	1	1	Add up
+204	2	1	Cuadrar / Tener sentido
+205	1	1	Allow for
+206	2	1	Tener en cuenta / Prever
+207	1	1	Bank on
+208	2	1	Confiar en / Contar con
+209	1	1	Blast off
+210	2	1	Despegar (cohete)
+211	1	1	Bottle up
+212	2	1	Reprimir (emociones)
+213	1	1	Branch out
+214	2	1	Expandirse / Diversificarse
+215	1	1	Breeze through
+216	2	1	Hacer algo con facilidad
+217	1	1	Buckle up
+218	2	1	Abrocharse el cinturón
+219	1	1	Bundle up
+220	2	1	Abrigarse mucho
+221	1	1	Burst in
+222	2	1	Irrumpir
+223	1	1	Carry over
+224	2	1	Traspasar / Aplazar
+225	1	1	Cash in
+226	2	1	Sacar provecho / Cobrar
+227	1	1	Chance upon
+228	2	1	Encontrarse por casualidad
+229	1	1	Clear out
+230	2	1	Desalojar / Vaciar
+231	1	1	Conjure up
+232	2	1	Evocar / Imaginar
+233	1	1	Cope with
+234	2	1	Sobrellevar / Lidiar con
+235	1	1	Crop up
+236	2	1	Surgir de repente
+237	1	1	Die out
+238	2	1	Extinguirse
+239	1	1	Doze off
+240	2	1	Quedarse dormido
+241	1	1	Dwell on
+242	2	1	Darle vueltas a algo
+243	1	1	Eavesdrop on
+244	2	1	Escuchar a escondidas
+245	1	1	Embark on
+246	2	1	Embarcarse en / Iniciar
+247	1	1	Fathom out
+248	2	1	Llegar a comprender
+249	1	1	Fend off
+250	2	1	Rechazar / Esquivar
+251	1	1	Flare up
+252	2	1	Estallar / Agravarse
+253	1	1	Follow through
+254	2	1	Llevar a término
+255	1	1	Frown upon
+256	2	1	Ver con malos ojos
+257	1	1	Gear up
+258	2	1	Prepararse / Equiparse
+259	1	1	Gloss over
+260	2	1	Pasar por alto / Minimizar
+261	1	1	Hammer out
+262	2	1	Llegar a un acuerdo difícil
+263	1	1	Hinge on
+264	2	1	Depender de
+265	1	1	Iron out
+266	2	1	Resolver / Limar asperezas
+267	1	1	Jot down
+268	2	1	Anotar rápidamente
+269	1	1	Key in
+270	2	1	Teclear / Introducir datos
+271	1	1	Lash out
+272	2	1	Arremeter / Atacar
+273	1	1	Lay off
+274	2	1	Despedir (del trabajo)
+275	1	1	Leap at
+276	2	1	Aprovechar (una oportunidad)
+277	1	1	Level off
+278	2	1	Estabilizarse
+279	1	1	Live up to
+280	2	1	Estar a la altura de
+281	1	1	Log off
+282	2	1	Cerrar sesión
+283	1	1	Log on
+284	2	1	Iniciar sesión
+285	1	1	Measure up
+286	2	1	Dar la talla
+287	1	1	Mull over
+288	2	1	Reflexionar / Meditar
+289	1	1	Narrow down
+290	2	1	Reducir opciones
+291	1	1	Nod off
+292	2	1	Dar cabezadas (sueño)
+293	1	1	Own up
+294	2	1	Confesar / Admitir
+295	1	1	Phase out
+296	2	1	Retirar gradualmente
+297	1	1	Pitch in
+298	2	1	Colaborar / Arrimar el hombro
+299	1	1	Rule out
+300	2	1	Descartar
+301	1	2	Back out
+302	2	2	Retirarse / Echarse atrás
+303	1	2	Bear with
+304	2	2	Tener paciencia con
+305	1	2	Blow out
+306	2	2	Apagar (soplando) / Reventar
+307	1	2	Break away
+308	2	2	Soltarse / Desprenderse
+309	1	2	Bring about
+310	2	2	Provocar / Ocasionar
+311	1	2	Brush up on
+312	2	2	Repasar / Refrescar conocimientos
+313	1	2	Burn out
+314	2	2	Consumirse / Agotarse (estrés)
+315	1	2	Call forth
+316	2	2	Provocar / Evocar
+317	1	2	Calm down
+318	2	2	Calmarse
+319	1	2	Check up on
+320	2	2	Vigilar / Controlar a alguien
+321	1	2	Cheer up
+322	2	2	Alegrar / Animarse
+323	1	2	Chop up
+324	2	2	Trocear / Picar
+325	1	2	Close down
+326	2	2	Cerrar permanentemente
+327	1	2	Come along
+328	2	2	Acompañar / Progresar
+329	1	2	Come down with
+330	2	2	Enfermar de
+331	1	2	Count on
+332	2	2	Contar con (alguien)
+333	1	2	Crack down on
+334	2	2	Tomar medidas severas contra
+335	1	2	Cut out
+336	2	2	Recortar / Dejar de hacer algo
+337	1	2	Dash off
+338	2	2	Hacer algo de prisa / Salir corriendo
+339	1	2	Deal with
+340	2	2	Tratar con / Encargarse de
+341	1	2	Dig into
+342	2	2	Investigar a fondo
+343	1	2	Dish out
+344	2	2	Repartir / Dar
+345	1	2	Draw up
+346	2	2	Redactar / Preparar (documento)
+347	1	2	Dream up
+348	2	2	Imaginar / Inventar
+349	1	2	Drive away
+350	2	2	Ahuyentar / Irse en coche
+351	1	2	Drop out
+352	2	2	Abandonar (estudios/carrera)
+353	1	2	Dry up
+354	2	2	Secarse / Quedarse sin palabras
+355	1	2	Face up to
+356	2	2	Afrontar / Dar la cara
+357	1	2	Fall apart
+358	2	2	Desmoronarse / Hacerse pedazos
+359	1	2	Fall through
+360	2	2	Fracasar (planes/proyectos)
+361	1	2	Feel up to
+362	2	2	Sentirse con ánimos para
+363	1	2	Fight back
+364	2	2	Defenderse / Contraatacar
+365	1	2	Figure out
+366	2	2	Comprender / Resolver
+367	1	2	Fill out
+368	2	2	Completar (un formulario)
+369	1	2	Fit in
+370	2	2	Encajar / Adaptarse
+371	1	2	Focus on
+372	2	2	Concentrarse en
+373	1	2	Get across
+374	2	2	Hacerse entender / Comunicar
+375	1	2	Get ahead
+376	2	2	Progresar / Salir adelante
+377	1	2	Get around
+378	2	2	Esquivar (problema) / Desplazarse
+379	1	2	Get at
+380	2	2	Insinuar / Alcanzar
+381	1	2	Get down
+382	2	2	Deprimir / Agacharse
+383	1	2	Get down to
+384	2	2	Ponerse manos a la obra
+385	1	2	Get over
+386	2	2	Superar / Recuperarse de
+387	1	2	Get through
+388	2	2	Terminar algo / Lograr contactar
+389	1	2	Give off
+390	2	2	Desprender (olor/luz)
+391	1	2	Go ahead
+392	2	2	Seguir adelante / Dar permiso
+393	1	2	Go by
+394	2	2	Pasar (el tiempo) / Guiarse por
+395	1	2	Go for
+396	2	2	Atacar / Intentar conseguir algo
+397	1	2	Go over
+398	2	2	Revisar / Repasar
+399	1	2	Go through
+400	2	2	Sufrir / Examinar detalladamente
+401	1	2	Go without
+402	2	2	Pasar sin algo / Privarse de
+403	1	2	Hand in
+404	2	2	Entregar (tarea/informe)
+405	1	2	Hand out
+406	2	2	Distribuir / Repartir
+407	1	2	Hang out
+408	2	2	Pasar el rato / Pasar tiempo con
+409	1	2	Head for
+410	2	2	Dirigirse hacia
+411	1	2	Hear from
+412	2	2	Tener noticias de alguien
+413	1	2	Help out
+414	2	2	Echar una mano
+415	1	2	Hold back
+416	2	2	Contener / Frenar
+417	1	2	Hold up
+418	2	2	Retrasar / Atracar
+419	1	2	Keep away
+420	2	2	Mantener alejado
+421	1	2	Keep off
+422	2	2	No pisar / Mantenerse fuera
+423	1	2	Keep out
+424	2	2	Prohibir la entrada
+425	1	2	Knock down
+426	2	2	Derribar / Atropellar
+427	1	2	Knock out
+428	2	2	Dejar inconsciente / Noquear
+429	1	2	Lay down
+430	2	2	Establecer (reglas) / Dejar en el suelo
+431	1	2	Lead to
+432	2	2	Conducir a / Provocar
+432	1	2	Leave behind
+434	2	2	Olvidar / Dejar atrás
+435	1	2	Leave out
+436	2	2	Excluir / Omitir
+437	1	2	Let down
+438	2	2	Decepcionar
+439	1	2	Let out
+440	2	2	Dejar salir / Soltar
+441	1	2	Line up
+442	2	2	Hacer cola / Alinear
+443	1	2	Listen to
+444	2	2	Escuchar a
+445	1	2	Live on
+446	2	2	Vivir de / Alimentarse de
+447	1	2	Look down on
+448	2	2	Despreciar / Mirar por encima del hombro
+449	1	2	Look forward
+450	2	2	Mirar hacia adelante
+451	1	2	Luck out
+452	2	2	Tener mucha suerte
+453	1	2	Make for
+454	2	2	Dirigirse hacia / Contribuir a
+455	1	2	Make out
+456	2	2	Distinguir / Entender algo difícil
+457	1	2	Make up for
+458	2	2	Compensar por
+459	1	2	Mess up
+460	2	2	Arruinar / Cometer un error
+461	1	2	Mix up
+462	2	2	Confundir / Mezclar
+463	1	2	Open up
+464	2	2	Sincerarse / Abrir (negocio)
+465	1	2	Opt out
+466	2	2	Decidir no participar
+467	1	2	Pass away
+468	2	2	Fallecer
+469	1	2	Pass out
+470	2	2	Desmayarse
+471	1	2	Pick on
+472	2	2	Meterse con alguien / Molestar
+473	1	2	Plug in
+474	2	2	Enchufar
+475	1	2	Pull over
+476	2	2	Orillarse con el coche
+477	1	2	Pull through
+478	2	2	Sobrevivir / Salir de una enfermedad
+479	1	2	Put back
+480	2	2	Poner en su sitio / Retrasar
+481	1	2	Put up with
+482	2	2	Tolerar / Aguantar
+483	1	2	Read over
+484	2	2	Leer detenidamente
+485	1	2	Rely on
+486	2	2	Confiar en / Depender de
+487	1	2	Remind of
+488	2	2	Recordar a algo o alguien
+489	1	2	Ring up
+490	2	2	Llamar por teléfono / Marcar en caja
+491	1	2	Rip off
+492	2	2	Estafar / Timar
+493	1	2	Rule out
+494	2	2	Descartar / Excluir
+495	1	2	Run into
+496	2	2	Encontrarse con alguien de casualidad
+497	1	2	Run over
+498	2	2	Atropellar / Repasar rápido
+499	1	2	Save up
+500	2	2	Ahorrar
+501	1	2	See off
+502	2	2	Despedir a alguien (en viaje)
+503	1	2	See through
+504	2	2	Ver las intenciones de / Llevar a cabo
+505	1	2	Sell out
+506	2	2	Agotarse las existencias
+507	1	2	Send back
+508	2	2	Devolver
+509	1	2	Settle down
+510	2	2	Establecerse / Calmarse
+511	1	2	Settle for
+512	2	2	Conformarse con
+513	1	2	Shake up
+514	2	2	Sacudir / Conmocionar
+515	1	2	Show off
+516	2	2	Presumir / Alardear
+517	1	2	Shut down
+518	2	2	Apagar (maquinaria) / Cerrar
+519	1	2	Shut up
+520	2	2	Callarse
+521	1	2	Sign in
+522	2	2	Registrar entrada
+523	1	2	Sign out
+524	2	2	Registrar salida
+525	1	2	Sign up
+526	2	2	Inscribirse / Apuntarse
+527	1	2	Sink in
+528	2	2	Ser asimilado (idea o noticia)
+529	1	2	Sleep on
+530	2	2	Consultar con la almohada
+531	1	2	Slip up
+532	2	2	Cometer un desliz / Error
+533	1	2	Slow down
+534	2	2	Ir más despacio
+535	1	2	Sort out
+536	2	2	Solucionar / Ordenar
+537	1	2	Speak up
+538	2	2	Hablar más alto / Expresarse
+539	1	2	Split up
+540	2	2	Separarse / Dividirse
+541	1	2	Stand by
+542	2	2	Apoyar / Estar a la espera
+543	1	2	Stand for
+544	2	2	Significar / Tolerar
+545	1	2	Stand out
+546	2	2	Destacar / Sobresalir
+547	1	2	Stay up
+548	2	2	Quedarse despierto
+549	1	2	Stick to
+550	2	2	Ceñirse a / Mantenerse fiel
+551	1	2	Take back
+552	2	2	Retractarse / Devolver
+553	1	2	Take in
+554	2	2	Engañar / Asimilar información
+555	1	2	Take on
+556	2	2	Asumir (reto/empleado) / Enfrentarse
+557	1	2	Take over
+558	2	2	Tomar el control
+559	1	2	Take up
+560	2	2	Empezar (hábito/afición) / Ocupar espacio
+561	1	2	Tell off
+562	2	2	Rañar / Regañar
+563	1	2	Think over
+564	2	2	Reflexionar
+565	1	2	Think up
+566	2	2	Idear / Inventar
+567	1	2	Throw up
+568	2	2	Vomitar
+569	1	2	Tidy up
+570	2	2	Ordenar / Limpiar un poco
+571	1	2	Touch on
+572	2	2	Mencionar brevemente
+573	1	2	Track down
+574	2	2	Rastrear / Localizar
+575	1	2	Turn away
+576	2	2	Rechazar / No dejar entrar
+577	1	2	Turn into
+578	2	2	Convertirse en
+579	1	2	Turn out
+580	2	2	Resultar ser / Apagar (luz)
+581	1	2	Use up
+582	2	2	Gastar / Consumir todo
+583	1	2	Wait for
+584	2	2	Esperar a
+585	1	2	Wait on
+586	2	2	Atender (en mesa) / Servir
+587	1	2	Walk out
+588	2	2	Abandonar (lugar/huelga)
+589	1	2	Wash up
+590	2	2	Lavar los platos
+591	1	2	Wear off
+592	2	2	Pasarse el efecto
+593	1	2	Wear out
+594	2	2	Desgastar / Dejar exhausto
+595	1	2	Wipe out
+596	2	2	Aniquilar / Limpiar por completo
+597	1	2	Write off
+598	2	2	Dar por perdido / Cancelar deuda
+599	1	2	Yield to
+600	2	2	Ceder ante
+601	1	3	Alight on
+602	2	3	Notar / Encontrar por casualidad
+603	1	3	Answer for
+604	2	3	Responsabilizarse de
+605	1	3	Argue out
+606	2	3	Debatir hasta llegar a una conclusión
+607	1	3	Auction off
+608	2	3	Subastar
+609	1	3	Avenge on
+610	2	3	Vengarse de
+611	1	3	Bail out
+612	2	3	Rescatar financieramente
+613	1	3	Bargain for
+614	2	3	Esperar / Contar con algo
+615	1	3	Beaver away
+616	2	3	Trabajar duro y con constancia
+617	1	3	Beef up
+618	2	3	Reforzar / Fortalecer
+619	1	3	Belt out
+620	2	3	Cantar a todo pulmón
+621	1	3	Blare out
+622	2	3	Resonar estruendosamente
+623	1	3	Blot out
+624	2	3	Borrar de la memoria / Tapar (luz)
+625	1	3	Blunder upon
+626	2	3	Encontrar por error o torpeza
+627	1	3	Board up
+628	2	3	Cerrar con tablas
+629	1	3	Bone up on
+630	2	3	Empollar / Estudiar mucho un tema
+631	1	3	Botch up
+632	2	3	Arruinar / Hacer una chapuza
+633	1	3	Bow out
+634	2	3	Retirarse discretamente
+635	1	3	Box in
+636	2	3	Acorralar / Encerrar
+637	1	3	Bridle at
+638	2	3	Ofenderse / Indignarse
+639	1	3	Brim over
+640	2	3	Desbordarse (emociones)
+641	1	3	Buck up
+642	2	3	Animarse / Darse prisa
+643	1	3	Buoy up
+644	2	3	Mantener a flote / Dar ánimos
+645	1	3	Buy off
+646	2	3	Sobornar
+647	1	3	Call down
+648	2	3	Regañar severamente
+649	1	3	Cast aside
+650	2	3	Desechar / Dejar de lado
+651	1	3	Cave in
+652	2	3	Ceder / Desmoronarse
+653	1	3	Chalk up to
+654	2	3	Atribuir a
+655	1	3	Chime in
+656	2	3	Intervenir en una conversación
+657	1	3	Clamp down on
+658	2	3	Reprimir severamente
+659	1	3	Claw back
+660	2	3	Recuperar con esfuerzo
+661	1	3	Clutter up
+662	2	3	Abarrotar / Desordenar
+663	1	3	Cotton on
+664	2	3	Darse cuenta / Captar la idea
+665	1	3	Cough up
+666	2	3	Soltar (dinero o información) a regañadientes
+667	1	3	Crush out
+668	2	3	Extinguir / Aplastar
+669	1	3	Cry out for
+670	2	3	Pedir a gritos (necesidad)
+671	1	3	Damp down
+672	2	3	Apaciguar / Sofocar
+673	1	3	Descend on
+674	2	3	Caer de improviso
+675	1	3	Dig up
+676	2	3	Desenterrar / Investigar pasado
+677	1	3	Dole out
+678	2	3	Repartir con parsimonia
+679	1	3	Dragoon into
+680	2	3	Coaccionar / Obligar
+681	1	3	Drain away
+682	2	3	Escurrir / Desaparecer poco a poco
+683	1	3	Draw out
+684	2	3	Prolongar / Hacer hablar a alguien
+685	1	3	Dredge up
+686	2	3	Sacar a relucir algo desagradable
+687	1	3	Drift apart
+688	2	3	Distanciarse emocionalmente
+689	1	3	Drum up
+690	2	3	Fomentar / Conseguir apoyo
+691	1	3	Egg on
+692	2	3	Incitar / Azuzar
+693	1	3	Eke out
+694	2	3	Hacer que algo dure / Sobrevivir con poco
+695	1	3	Explain away
+696	2	3	Justificar / Dar una excusa para algo malo
+697	1	3	Face down
+698	2	3	Enfrentar con firmeza
+699	1	3	Fall back on
+700	2	3	Recurrir a algo en última instancia
+701	1	3	Farm out
+702	2	3	Subcontratar / Delegar
+703	1	3	Ferret out
+704	2	3	Husmear / Localizar información oculta
+705	1	3	Finish off
+706	2	3	Aniquilar / Terminar por completo
+707	1	3	Fish for
+708	2	3	Pescar (cumplidos/información)
+709	1	3	Fitter away
+710	2	3	Desperdiciar / Malgastar
+711	1	3	Flesh out
+712	2	3	Dar cuerpo / Desarrollar una idea
+713	1	3	Flog to death
+714	2	3	Abusar de un tema hasta aburrir
+715	1	3	Fork out
+716	2	3	Pagar a regañadientes
+717	1	3	Gain on
+718	2	3	Ganar terreno / Acercarse
+719	1	3	Get at
+720	2	3	Insinuar / Criticar
+721	1	3	Gloss over
+722	2	3	Minimizar un error / Pasar por alto
+723	1	3	Go along with
+724	2	3	Estar de acuerdo con
+725	1	3	Go for broke
+726	2	3	Jugárselo todo
+727	1	3	Grovel to
+728	2	3	Humillarse ante alguien
+729	1	3	Hack away at
+730	2	3	Talar / Reducir con esfuerzo
+731	1	3	Hark back to
+732	2	3	Evocar algo del pasado
+733	1	3	Have it out with
+734	2	3	Aclarar las cosas con alguien
+735	1	3	Heap up
+736	2	3	Amontonar
+737	1	3	Hem in
+738	2	3	Cercar / Limitar movimientos
+739	1	3	Hold forth on
+740	2	3	Hablar extensamente sobre
+741	1	3	Hone in on
+742	2	3	Dirigirse directamente a
+743	1	3	Hush up
+744	2	3	Ocultar un escándalo / Silenciar
+745	1	3	Ice over
+746	2	3	Congelarse la superficie
+747	1	3	Idle away
+748	2	3	Perder el tiempo
+749	1	3	Impinge on
+750	2	3	Afectar negativamente / Incidir
+751	1	3	Inquire into
+752	2	3	Investigar formalmente
+753	1	3	Jack up
+754	2	3	Subir precios / Levantar con gato
+755	1	3	Jaw away
+756	2	3	Hablar sin parar
+757	1	3	Jump at
+758	2	3	Aceptar de inmediato
+759	1	3	Keel over
+760	2	3	Desmayarse / Volcarse
+761	1	3	Keep in with
+762	2	3	Mantenerse en buenos términos con
+763	1	3	Kick in
+764	2	3	Empezar a surtir efecto
+765	1	3	Knuckle down
+766	2	3	Ponerse a trabajar seriamente
+767	1	3	Lap up
+768	2	3	Disfrutar algo con avidez
+769	1	3	Lay into
+770	2	3	Atacar verbalmente
+771	1	3	Lead off
+772	2	3	Comenzar / Dar el primer paso
+773	1	3	Leaf through
+774	2	3	Hojear rápido
+775	1	3	Lean on
+776	2	3	Presionar a alguien / Apoyarse
+777	1	3	Let on
+778	2	3	Revelar un secreto
+779	1	3	Level with
+780	2	3	Ser franco con alguien
+781	1	3	Live down
+782	2	3	Hacer olvidar un error pasado
+783	1	3	Look on
+784	2	3	Observar sin participar
+785	1	3	Lord it over
+786	2	3	Tratar a otros con superioridad
+787	1	3	Make away with
+788	2	3	Escapar con un botín
+789	1	3	Make off with
+790	2	3	Robar y huir
+791	1	3	Map out
+792	2	3	Planificar detalladamente
+793	1	3	Mark down
+794	2	3	Rebajar precio / Bajar nota
+795	1	3	Measure out
+796	2	3	Dosificar / Medir
+797	1	3	Melt away
+798	2	3	Esfumarse / Desvanecerse
+799	1	3	Met out
+800	2	3	Infligir / Imponer castigo
+801	1	3	Muck up
+802	2	3	Echar a perder
+803	1	3	Muscle in on
+804	2	3	Entrometerse a la fuerza
+805	1	3	Niggle at
+806	2	3	Preocupar / Molestar constantemente
+807	1	3	Nose about
+808	2	3	Husmear
+809	1	3	Note down
+810	2	3	Tomar nota
+811	1	3	Occur to
+812	2	3	Venirse a la mente
+813	1	3	Open onto
+814	2	3	Dar a (una vista o lugar)
+815	1	3	Own up to
+816	2	3	Confesar algo malo
+817	1	3	Pack in
+818	2	3	Abandonar algo / Meter a presión
+819	1	3	Pal around with
+820	2	3	Andar con amigos
+821	1	3	Palm off on
+822	2	3	Endosar algo falso o malo
+823	1	3	Pan out
+824	2	3	Salir bien / Dar resultado
+825	1	3	Part with
+826	2	3	Desprenderse de algo querido
+827	1	3	Patch up
+828	2	3	Remendar / Reconciliarse
+829	1	3	Pay off
+830	2	3	Valer la pena / Liquidar deuda
+831	1	3	Peg out
+832	2	3	Estirar la pata (morir) / Agotarse
+833	1	3	Peter out
+834	2	3	Agotarse gradualmente
+835	1	3	Pick apart
+836	2	3	Analizar críticamente
+837	1	3	Pig out
+838	2	3	Atiborrarse de comida
+839	1	3	Pile up
+840	2	3	Acumularse
+841	1	3	Pin down
+842	2	3	Definir con precisión / Inmovilizar
+843	1	3	Pine for
+844	2	3	Añorar intensamente
+845	1	3	Pipe down
+846	2	3	Callarse (imperativo)
+847	1	3	Play down
+848	2	3	Restar importancia
+849	1	3	Plough into
+850	2	3	Estrellarse contra / Invertir en
+851	1	3	Pluck up
+852	2	3	Armarse de (valor)
+853	1	3	Polish off
+854	2	3	Acabar rápido (comida o tarea)
+855	1	3	Pore over
+856	2	3	Estudiar con mucha atención
+857	1	3	Pull off
+858	2	3	Lograr algo difícil
+859	1	3	Push for
+860	2	3	Presionar para conseguir algo
+861	1	3	Put across
+862	2	3	Comunicar eficazmente
+863	1	3	Put upon
+864	2	3	Abusar de la confianza de alguien
+865	1	3	Quiet down
+866	2	3	Hacer silencio
+867	1	3	Rake in
+868	2	3	Ganar dinero a espuertas
+869	1	3	Rattle off
+870	2	3	Recitar de memoria rápidamente
+871	1	3	Read into
+872	2	3	Ver segundas intenciones
+873	1	3	Reckon on
+874	2	3	Contar con algo
+875	1	3	Reel off
+876	2	3	Decir de corrido
+877	1	3	Rein in
+878	2	3	Frenar / Controlar
+879	1	3	Rough out
+880	2	3	Hacer un bosquejo
+881	1	3	Round off
+882	2	3	Redondear / Culminar bien
+883	1	3	Rub in
+884	2	3	Recordar algo desagradable (regañar)
+885	1	3	Run up against
+886	2	3	Tropezar con (dificultades)
+887	1	3	Scrape by
+888	2	3	Pasar con lo justo
+889	1	3	Screw up
+890	2	3	Fastidiarla / Arruinar
+891	1	3	Set about
+892	2	3	Ponerse a hacer algo
+893	1	3	Shrug off
+894	2	3	Restar importancia / Desestimar
+895	1	3	Single out
+896	2	3	Seleccionar / Señalar
+897	1	3	Size up
+898	2	3	Evaluar / Tantear
+899	1	3	Skimp on
+900	2	3	Escatimar en
+\.
+
+
+--
+-- TOC entry 3516 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: lenguajes_id_lenguaje_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.lenguajes_id_lenguaje_seq', 1, false);
+
+
+--
+-- TOC entry 3517 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: nivel_id_nivel_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.nivel_id_nivel_seq', 1, false);
+
+
+--
+-- TOC entry 3518 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: tipo_palabra_id_tipo_palabra_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.tipo_palabra_id_tipo_palabra_seq', 9, true);
+
+
+--
+-- TOC entry 3519 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: tipos_archivo_id_tipo_archivo_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.tipos_archivo_id_tipo_archivo_seq', 1, false);
+
+
+--
+-- TOC entry 3520 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: usuarios_id_usuario_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.usuarios_id_usuario_seq', 3, true);
+
+
+--
+-- TOC entry 3330 (class 2606 OID 17192)
+-- Name: idiomas lenguajes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.idiomas
+    ADD CONSTRAINT lenguajes_pkey PRIMARY KEY (id_lenguaje);
+
+
+--
+-- TOC entry 3332 (class 2606 OID 17194)
+-- Name: modismos modismos_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.modismos
+    ADD CONSTRAINT modismos_pkey PRIMARY KEY (id_modismo, id_lenguaje);
+
+
+--
+-- TOC entry 3334 (class 2606 OID 17196)
+-- Name: niveles nivel_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.niveles
+    ADD CONSTRAINT nivel_pkey PRIMARY KEY (id_nivel);
+
+
+--
+-- TOC entry 3336 (class 2606 OID 17200)
+-- Name: palabras palabras_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.palabras
+    ADD CONSTRAINT palabras_pkey PRIMARY KEY (id_palabra, id_lenguaje);
+
+
+--
+-- TOC entry 3338 (class 2606 OID 17202)
+-- Name: tipo_palabra tipo_palabra_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tipo_palabra
+    ADD CONSTRAINT tipo_palabra_pkey PRIMARY KEY (id_tipo_palabra);
+
+
+--
+-- TOC entry 3340 (class 2606 OID 17204)
+-- Name: tipos_archivo tipos_archivo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tipos_archivo
+    ADD CONSTRAINT tipos_archivo_pkey PRIMARY KEY (id_tipo_archivo);
+
+
+--
+-- TOC entry 3342 (class 2606 OID 17251)
+-- Name: usuarios usuarios_alias_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuarios
+    ADD CONSTRAINT usuarios_alias_key UNIQUE (alias);
+
+
+--
+-- TOC entry 3344 (class 2606 OID 17249)
+-- Name: usuarios usuarios_correo_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuarios
+    ADD CONSTRAINT usuarios_correo_key UNIQUE (correo);
+
+
+--
+-- TOC entry 3346 (class 2606 OID 17212)
+-- Name: usuarios usuarios_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuarios
+    ADD CONSTRAINT usuarios_pkey PRIMARY KEY (id_usuario);
+
+
+--
+-- TOC entry 3348 (class 2606 OID 17214)
+-- Name: verbos_compuestos verbos_compuestos_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.verbos_compuestos
+    ADD CONSTRAINT verbos_compuestos_pkey PRIMARY KEY (id_verbo, id_lenguaje);
+
+
+-- Completed on 2026-07-27 11:10:12 -04
+
+--
+-- PostgreSQL database dump complete
+--
+
+

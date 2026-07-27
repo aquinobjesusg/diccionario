@@ -1,0 +1,32 @@
+# Ignorar archivos de configuración con contraseñas (ajusta el nombre si usas otro)
+config.php
+conexion.php
+db_config.php
+
+# Ignorar archivos temporales de Linux/Ubuntu
+.DS_Store
+.thumbs
+.db
+*~
+
+# Ignorar logs de errores
+*.log
+error_log
+
+# Ignorar carpetas temporales o de sesiones
+sessions/
+temp/
+
+# carpetas npm y composer
+/vendor/
+/node_modules/
+
+# proyecto de Eclipse
+.project
+.buildpath
+/.vscode/
+/.settings/
+
+# Proyecto DbVeawer
+/.dbeaver/
+

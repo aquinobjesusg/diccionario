@@ -1,0 +1,8 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "runWeb": "streamlit run simularvistabil07.py",
+        "runWeb1": "python app.py"
+    }
+}
