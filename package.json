@@ -1,0 +1,10 @@
+{
+  "name": "Diccionario",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "front_dev": "cd front && npm run dev",
+    "back_dev": "cd back_node && npm run dev",
+    "RecoverCommitAfterPush": "git reset --hard origin/main"
+  }
+}
